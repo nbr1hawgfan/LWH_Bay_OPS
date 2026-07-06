@@ -1,472 +1,466 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>LWH Bay Ops</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0d1b2e">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
-<style>
-  :root {
-    --navy: #0d1b2e;
-    --navy-light: #16283f;
-    --navy-lighter: #1f3654;
-    --amber: #e8a33d;
-    --amber-dim: #c78a2e;
-    --text: #eef2f7;
-    --text-dim: #9fb0c3;
-    --border: #2a3f5c;
-    --danger: #d9534f;
-    --ok: #4caf7d;
-  }
-  * { box-sizing: border-box; }
-  html, body {
-    margin: 0; padding: 0;
-    background: var(--navy);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    min-height: 100vh;
-  }
-  header {
-    background: var(--navy-light);
-    border-bottom: 3px solid var(--amber);
-    padding: 18px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  header h1 {
-    font-size: 22px;
-    margin: 0;
-    letter-spacing: 0.3px;
-  }
-  header .badge {
-    font-size: 13px;
-    color: var(--text-dim);
-    border: 1px solid var(--border);
-    padding: 4px 10px;
-    border-radius: 999px;
-  }
-  main {
-    max-width: 640px;
-    margin: 0 auto;
-    padding: 20px 16px 60px;
-  }
-  .card {
-    background: var(--navy-light);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 20px;
-    margin-bottom: 16px;
-  }
-  .search-row {
-    display: flex;
-    gap: 10px;
-  }
-  input[type=text] {
-    flex: 1;
-    font-size: 18px;
-    padding: 14px 16px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: var(--navy);
-    color: var(--text);
-  }
-  input[type=text]:focus {
-    outline: 2px solid var(--amber);
-    outline-offset: 1px;
-  }
-  button {
-    font-size: 16px;
-    font-weight: 600;
-    border: none;
-    border-radius: 10px;
-    padding: 14px 18px;
-    cursor: pointer;
-    font-family: inherit;
-  }
-  .btn-primary {
-    background: var(--amber);
-    color: var(--navy);
-  }
-  .btn-primary:active { background: var(--amber-dim); }
-  .btn-secondary {
-    background: var(--navy-lighter);
-    color: var(--text);
-    border: 1px solid var(--border);
-  }
-  .btn-block { width: 100%; }
-  .scan-btn {
-    margin-top: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
-  .result-grid {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 10px 16px;
-    font-size: 16px;
-  }
-  .result-grid .label {
-    color: var(--text-dim);
-    font-weight: 600;
-  }
-  .result-grid .value {
-    font-weight: 500;
-  }
-  .bay-highlight {
-    background: var(--navy);
-    border: 2px solid var(--amber);
-    border-radius: 12px;
-    padding: 16px;
-    text-align: center;
-    margin-bottom: 18px;
-  }
-  .bay-highlight .label {
-    font-size: 13px;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .bay-highlight .value {
-    font-size: 34px;
-    font-weight: 700;
-    color: var(--amber);
-    margin-top: 4px;
-  }
-  .sync-note {
-    font-size: 13px;
-    color: var(--text-dim);
-    text-align: center;
-    margin-top: 4px;
-  }
-  .move-section {
-    margin-top: 18px;
-    border-top: 1px solid var(--border);
-    padding-top: 18px;
-  }
-  .move-warning {
-    font-size: 14px;
-    color: var(--text-dim);
-    margin-bottom: 12px;
-    line-height: 1.5;
-  }
-  .empty-state {
-    text-align: center;
-    color: var(--text-dim);
-    padding: 30px 10px;
-    font-size: 16px;
-  }
-  .error-state {
-    text-align: center;
-    color: var(--danger);
-    padding: 16px;
-    font-size: 16px;
-  }
-  /* Scanner overlay */
-  #scanOverlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: #000;
-    z-index: 100;
-    flex-direction: column;
-  }
-  #scanOverlay.open { display: flex; }
-  #scanVideo {
-    flex: 1;
-    width: 100%;
-    object-fit: cover;
-  }
-  .scan-aim-box {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 78%;
-    max-width: 420px;
-    height: 140px;
-    border: 3px solid var(--amber);
-    border-radius: 14px;
-    box-shadow: 0 0 0 2000px rgba(0,0,0,0.35);
-  }
-  .scan-footer {
-    background: var(--navy-light);
-    padding: 16px;
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-  }
-  .scan-hint {
-    position: absolute;
-    top: 14px; left: 0; right: 0;
-    text-align: center;
-    color: #fff;
-    font-size: 15px;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
-  }
-  .spinner {
-    display: inline-block;
-    width: 16px; height: 16px;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-top-color: var(--navy);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-</style>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>LWH Bay Ops</title>
+  <style>
+    :root {
+      --slate-900: #0f172a;
+      --slate-800: #1e293b;
+      --slate-700: #334155;
+      --slate-500: #64748b;
+      --slate-300: #cbd5e1;
+      --slate-100: #f1f5f9;
+      --slate-50:  #f8fafc;
+      --emerald-600: #059669;
+      --emerald-500: #10b981;
+      --emerald-100: #d1fae5;
+      --amber-500: #f59e0b;
+      --amber-100: #fef3c7;
+      --red-500: #ef4444;
+      --red-100: #fee2e2;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--slate-50);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--slate-900);
+    }
+    .mono {
+      font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+    }
+    header {
+      background: var(--slate-900);
+      color: white;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    header h1 {
+      font-size: 18px;
+      margin: 0;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+    header button.ghost {
+      background: transparent;
+      border: 1px solid var(--slate-700);
+      color: var(--slate-300);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    main { padding: 16px; max-width: 560px; margin: 0 auto; padding-bottom: 60px; }
+    .card {
+      background: white;
+      border: 1px solid var(--slate-300);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--slate-700);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    select, input[type=text] {
+      width: 100%;
+      font-size: 18px;
+      padding: 14px 12px;
+      border: 1px solid var(--slate-300);
+      border-radius: 10px;
+      background: var(--slate-50);
+      color: var(--slate-900);
+      margin-bottom: 14px;
+    }
+    input[type=text]:focus, select:focus {
+      outline: none;
+      border-color: var(--emerald-500);
+      background: white;
+    }
+    button.big {
+      width: 100%;
+      font-size: 18px;
+      font-weight: 700;
+      padding: 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    button.primary { background: var(--emerald-500); color: white; }
+    button.primary:active { background: var(--emerald-600); }
+    button.secondary { background: var(--slate-100); color: var(--slate-800); border: 1px solid var(--slate-300); }
+    button.secondary:active { background: var(--slate-300); }
+    button.scan {
+      background: var(--slate-800);
+      color: white;
+    }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .status-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .status-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+    .status-ready { background: var(--emerald-500); }
+    .status-unknown { background: var(--amber-500); }
+    .status-text { font-weight: 700; font-size: 16px; }
+
+    .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 6px; }
+    .field { background: var(--slate-50); border-radius: 8px; padding: 10px 12px; }
+    .field .k { font-size: 11px; text-transform: uppercase; color: var(--slate-500); font-weight: 700; letter-spacing: 0.3px; }
+    .field .v { font-size: 16px; font-weight: 700; margin-top: 2px; }
+    .customer-banner {
+      text-align: center;
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      margin: 16px 0 4px;
+      color: var(--slate-900);
+    }
+
+    .suggestion-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--emerald-100);
+      color: var(--emerald-600);
+      border: 1px solid var(--emerald-500);
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-weight: 700;
+      font-size: 15px;
+      margin: 4px 6px 4px 0;
+      cursor: pointer;
+    }
+    .chip-count { font-size: 12px; opacity: 0.7; font-weight: 600; }
+
+    .group-list, .bay-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .group-btn, .bay-btn {
+      background: var(--slate-100);
+      border: 1px solid var(--slate-300);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--slate-800);
+    }
+    .group-btn:active, .bay-btn:active { background: var(--slate-300); }
+    .bay-btn { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+
+    .breadcrumb { font-size: 13px; color: var(--slate-500); margin-bottom: 10px; }
+    .breadcrumb button { background: none; border: none; color: var(--emerald-600); font-weight: 700; padding: 0; font-size: 13px; cursor: pointer; }
+
+    .banner {
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+    .banner.warn { background: var(--amber-100); color: #92400e; }
+    .banner.error { background: var(--red-100); color: #991b1b; }
+
+    .hidden { display: none !important; }
+    .spinner {
+      width: 22px; height: 22px;
+      border: 3px solid var(--slate-300);
+      border-top-color: var(--emerald-500);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 20px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .sync-note { text-align: center; font-size: 12px; color: var(--slate-500); margin-top: -4px; margin-bottom: 14px; }
+  </style>
 </head>
 <body>
 
 <header>
   <h1>LWH Bay Ops</h1>
-  <span class="badge" id="syncBadge">—</span>
+  <button class="ghost" onclick="goHome()">Main Menu</button>
 </header>
 
 <main>
 
-  <div class="card">
-    <div class="search-row">
-      <input type="text" id="searchInput" placeholder="LWH ID or Customer ID" autocomplete="off" autocapitalize="off">
-      <button class="btn-primary" onclick="lookup()">Find</button>
+  <!-- SEARCH SCREEN -->
+  <div id="screen-search">
+    <div class="card">
+      <label for="palletType">Pallet ID Type</label>
+      <select id="palletType">
+        <option value="LWH ID">LWH ID</option>
+        <option value="Customer ID">Customer ID</option>
+      </select>
+
+      <label for="palletId">Pallet ID</label>
+      <input type="text" id="palletId" inputmode="text" autocomplete="off" placeholder="Scan or type ID">
+
+      <button class="big scan" id="btnScan" onclick="startScan()">📷 Scan Barcode</button>
+      <button class="big primary" onclick="doLookup()">Pick Up</button>
     </div>
-    <button class="btn-secondary btn-block scan-btn" onclick="openScanner()">
-      Scan Barcode
-    </button>
+    <div id="search-error"></div>
   </div>
 
-  <div id="resultArea"></div>
+  <!-- LOADING -->
+  <div id="screen-loading" class="hidden">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="screen-result" class="hidden">
+    <div class="card">
+      <div class="status-row">
+        <div class="status-dot status-ready" id="statusDot"></div>
+        <div class="status-text" id="statusText">—</div>
+      </div>
+
+      <div class="field-grid">
+        <div class="field"><div class="k">Warehouse</div><div class="v mono" id="fWarehouse">—</div></div>
+        <div class="field"><div class="k">Bay Location</div><div class="v mono" id="fBay">—</div></div>
+        <div class="field"><div class="k">Qty</div><div class="v" id="fQty">—</div></div>
+        <div class="field"><div class="k">Item</div><div class="v mono" id="fItem">—</div></div>
+      </div>
+      <div class="customer-banner" id="fCustomer">—</div>
+      <div style="text-align:center;color:var(--slate-500);font-size:13px;" id="fItemDesc"></div>
+    </div>
+
+    <div class="card">
+      <button class="big secondary" onclick="loadSuggestions()">Get Bay Suggestions</button>
+      <div id="suggestions"></div>
+    </div>
+
+    <div class="card">
+      <label for="targetBay">Scan To A Bay Location</label>
+      <input type="text" id="targetBay" inputmode="text" autocomplete="off" placeholder="Scan or type bay">
+      <button class="big primary" onclick="doMove()">Move To Bay</button>
+      <div id="move-message"></div>
+    </div>
+
+    <div class="card">
+      <label>Choose A Bay Location</label>
+      <div class="breadcrumb" id="bayBreadcrumb"></div>
+      <div id="bayPicker"><div class="group-list" id="groupList"></div></div>
+    </div>
+
+    <button class="big secondary" onclick="goHome()">Start Over</button>
+  </div>
 
 </main>
 
-<!-- Camera scanner overlay -->
-<div id="scanOverlay">
-  <video id="scanVideo" autoplay playsinline muted></video>
-  <div class="scan-aim-box"></div>
-  <div class="scan-hint">Centre the barcode in the box</div>
-  <div class="scan-footer">
-    <button class="btn-secondary" onclick="closeScanner()">Cancel</button>
-  </div>
-</div>
-
-<!-- ZXing fallback for browsers without native BarcodeDetector (iOS Safari) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/zxing-library/0.20.0/index.min.js"></script>
 <script>
-// ── CONFIG ──────────────────────────────────────────────────
-var GAS_URL = 'https://script.google.com/macros/s/AKfycbz0jPhN6ZDuy_HrLsKpTMkpKbWq9YLCykxI2ybjPsjYFT3d6ZhlTuuvBmVLOvEREBnN9w/exec';
+  var currentPallet = null;
 
-// Handoff target for the real bay-move system. Param name is a
-// placeholder until confirmed with the developer — update PARAM_NAME
-// once BayMove.aspx's query-string handling is confirmed.
-var MOVE_BASE_URL = 'http://mobile.logistics-warehouse.biz/BayMove.aspx';
-var MOVE_PARAM_NAME = 'palletId'; // <-- swap this once confirmed
-
-// ── State ───────────────────────────────────────────────────
-var barcodeDetector = null;
-var zxingReader = null;
-var scanStream = null;
-var scanRAF = null;
-
-// ── API helper (matches existing LWH PWA pattern: POST as text/plain
-//    to dodge CORS preflight; GAS doPost parses fn/args manually) ──
-function callApi(fn, args) {
-  return fetch(GAS_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: 'fn=' + encodeURIComponent(fn) + '&args=' + encodeURIComponent(JSON.stringify(args || []))
-  }).then(function (r) { return r.json(); });
-}
-
-// ── Lookup flow ─────────────────────────────────────────────
-function lookup() {
-  var q = document.getElementById('searchInput').value.trim();
-  if (!q) return;
-  renderLoading();
-  callApi('lookupPallet', [q])
-    .then(function (res) {
-      if (res.error) { renderError(res.error); return; }
-      if (!res.result) { renderEmpty(q); return; }
-      renderResult(res.result);
-    })
-    .catch(function (err) { renderError('Could not reach the server. Check connection and try again.'); });
-}
-
-function renderLoading() {
-  document.getElementById('resultArea').innerHTML =
-    '<div class="card empty-state"><span class="spinner" style="border-top-color:var(--amber)"></span> Looking up…</div>';
-}
-
-function renderEmpty(q) {
-  document.getElementById('resultArea').innerHTML =
-    '<div class="card empty-state">No pallet found for “' + escapeHtml(q) + '.” Double-check the ID and try again.</div>';
-}
-
-function renderError(msg) {
-  document.getElementById('resultArea').innerHTML =
-    '<div class="card error-state">' + escapeHtml(msg) + '</div>';
-}
-
-function renderResult(r) {
-  document.getElementById('syncBadge').textContent = 'Synced ' + (r.lastSynced || '');
-
-  var html = '';
-  html += '<div class="card">';
-  html += '  <div class="bay-highlight">';
-  html += '    <div class="label">Current Bay</div>';
-  html += '    <div class="value">' + escapeHtml(r.bayName || '—') + '</div>';
-  html += '  </div>';
-  html += '  <div class="result-grid">';
-  html += row('LWH ID', r.lwhId);
-  html += row('Customer ID', r.customerId);
-  html += row('Customer', r.customer);
-  html += row('Item', r.item);
-  html += row('Description', r.itemDesc);
-  html += row('Lot #', r.lotNum);
-  html += row('Qty', r.qty + (r.units ? ' ' + r.units : ''));
-  html += row('Location', r.location);
-  html += '  </div>';
-  html += '  <div class="sync-note">Bay data syncs hourly from the warehouse system — not live.</div>';
-  html += '  <div class="move-section">';
-  html += '    <div class="move-warning">Moving a pallet still happens in the official LWH Mobile Portal. Tap below to open it with this pallet ready to go.</div>';
-  html += '    <button class="btn-primary btn-block" onclick="handOffToMove(\'' + escapeAttr(r.lwhId || r.customerId) + '\')">Move This Pallet →</button>';
-  html += '  </div>';
-  html += '</div>';
-
-  document.getElementById('resultArea').innerHTML = html;
-}
-
-function row(label, value) {
-  return '<div class="label">' + escapeHtml(label) + '</div><div class="value">' + escapeHtml(value || '—') + '</div>';
-}
-
-function handOffToMove(palletId) {
-  var url = MOVE_BASE_URL + '?' + MOVE_PARAM_NAME + '=' + encodeURIComponent(palletId);
-  window.open(url, '_blank');
-}
-
-document.getElementById('searchInput').addEventListener('keydown', function (e) {
-  if (e.key === 'Enter') lookup();
-});
-
-// ── Scanner ─────────────────────────────────────────────────
-function openScanner() {
-  var overlay = document.getElementById('scanOverlay');
-  overlay.classList.add('open');
-  startCamera();
-}
-
-function closeScanner() {
-  document.getElementById('scanOverlay').classList.remove('open');
-  stopCamera();
-}
-
-function startCamera() {
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
-    .then(function (stream) {
-      scanStream = stream;
-      var video = document.getElementById('scanVideo');
-      video.srcObject = stream;
-      video.play();
-      video.onloadedmetadata = function () { scanLoop(); };
-    })
-    .catch(function () {
-      alert('Could not access the camera. Check permissions in your browser settings.');
-      closeScanner();
+  function show(id) {
+    ['screen-search', 'screen-loading', 'screen-result'].forEach(function (s) {
+      document.getElementById(s).classList.toggle('hidden', s !== id);
     });
-}
-
-function stopCamera() {
-  if (scanRAF) cancelAnimationFrame(scanRAF);
-  scanRAF = null;
-  if (scanStream) {
-    scanStream.getTracks().forEach(function (t) { t.stop(); });
-    scanStream = null;
-  }
-}
-
-function scanLoop() {
-  var video = document.getElementById('scanVideo');
-  if (!video || video.readyState < 2) {
-    scanRAF = requestAnimationFrame(scanLoop);
-    return;
   }
 
-  if (window.BarcodeDetector && !barcodeDetector) {
-    try {
-      barcodeDetector = new BarcodeDetector({
-        formats: ['code_128', 'code_39', 'code_93', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'qr_code', 'data_matrix', 'pdf417']
-      });
-    } catch (e) { barcodeDetector = null; }
+  function goHome() {
+    currentPallet = null;
+    document.getElementById('palletId').value = '';
+    document.getElementById('search-error').innerHTML = '';
+    document.getElementById('suggestions').innerHTML = '';
+    document.getElementById('move-message').innerHTML = '';
+    document.getElementById('targetBay').value = '';
+    document.getElementById('groupList').innerHTML = '';
+    document.getElementById('bayBreadcrumb').innerHTML = '';
+    show('screen-search');
   }
 
-  if (barcodeDetector) {
-    barcodeDetector.detect(video)
-      .then(function (codes) {
-        if (codes.length > 0) { onScanResult(codes[0].rawValue); return; }
-        scanRAF = requestAnimationFrame(scanLoop);
-      })
-      .catch(function () { scanRAF = requestAnimationFrame(scanLoop); });
-  } else {
-    scanWithZXing(video);
-  }
-}
-
-function scanWithZXing(video) {
-  if (!zxingReader && window.ZXing) {
-    zxingReader = new ZXing.BrowserMultiFormatReader();
-  }
-  if (!zxingReader) {
-    scanRAF = requestAnimationFrame(function () { scanLoop(); });
-    return;
-  }
-  var canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  var ctx = canvas.getContext('2d');
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-  try {
-    var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    var lum = new ZXing.RGBLuminanceSource(imgData.data, canvas.width, canvas.height);
-    var binary = new ZXing.HybridBinarizer(lum);
-    var bmp = new ZXing.BinaryBitmap(binary);
-    var decoded = zxingReader.decode(bmp);
-    if (decoded && decoded.getText()) {
-      onScanResult(decoded.getText());
+  function doLookup() {
+    var id = document.getElementById('palletId').value.trim();
+    var errBox = document.getElementById('search-error');
+    errBox.innerHTML = '';
+    if (!id) {
+      errBox.innerHTML = '<div class="banner warn">Enter or scan a Pallet ID first.</div>';
       return;
     }
-  } catch (e) { /* no barcode visible yet — normal */ }
+    show('screen-loading');
+    google.script.run
+      .withSuccessHandler(function (resp) {
+        if (!resp || !resp.result) {
+          show('screen-search');
+          errBox.innerHTML = '<div class="banner error">No pallet found for "' + id + '".</div>';
+          return;
+        }
+        currentPallet = resp.result;
+        renderResult(currentPallet);
+        show('screen-result');
+      })
+      .withFailureHandler(function (err) {
+        show('screen-search');
+        errBox.innerHTML = '<div class="banner error">Lookup failed: ' + err.message + '</div>';
+      })
+      .lookupPallet(id);
+  }
 
-  scanRAF = requestAnimationFrame(function () { scanLoop(); });
-}
+  function renderResult(p) {
+    var ready = (p.status || '').toLowerCase().indexOf('ready') !== -1;
+    document.getElementById('statusDot').className = 'status-dot ' + (ready ? 'status-ready' : 'status-unknown');
+    document.getElementById('statusText').textContent = (p.lwhId || '') + (p.status ? ' - ' + p.status : '');
+    document.getElementById('fWarehouse').textContent = p.location || '—';
+    document.getElementById('fBay').textContent = p.bayName || '—';
+    document.getElementById('fQty').textContent = p.qty || '—';
+    document.getElementById('fItem').textContent = p.item || '—';
+    document.getElementById('fCustomer').textContent = p.customer || '—';
+    document.getElementById('fItemDesc').textContent = p.itemDesc || '';
+  }
 
-function onScanResult(value) {
-  if (!value) return;
-  closeScanner();
-  document.getElementById('searchInput').value = value.trim();
-  lookup();
-}
+  function loadSuggestions() {
+    if (!currentPallet) return;
+    var box = document.getElementById('suggestions');
+    box.innerHTML = '<div class="spinner" style="margin:14px auto;"></div>';
+    google.script.run
+      .withSuccessHandler(function (resp) {
+        var list = (resp && resp.result) || [];
+        if (!list.length) {
+          box.innerHTML = '<div class="banner warn">No suggestions found for this customer/warehouse yet.</div>';
+          return;
+        }
+        box.innerHTML = list.map(function (s) {
+          return '<span class="suggestion-chip" onclick="useSuggestedBay(\'' + s.bayName + '\')">' +
+                 s.bayName + ' <span class="chip-count">(' + s.count + ')</span></span>';
+        }).join('');
+      })
+      .withFailureHandler(function (err) {
+        box.innerHTML = '<div class="banner error">Could not load suggestions: ' + err.message + '</div>';
+      })
+      .getBaySuggestions(currentPallet.lwhId);
+  }
 
-// ── Utilities ───────────────────────────────────────────────
-function escapeHtml(s) {
-  if (s === null || s === undefined) return '';
-  return s.toString()
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}
-function escapeAttr(s) {
-  return escapeHtml(s).replace(/'/g, '&#39;');
-}
+  function useSuggestedBay(bayName) {
+    document.getElementById('targetBay').value = bayName;
+  }
 
-// ── PWA install / service worker ────────────────────────────
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function () {
-    navigator.serviceWorker.register('sw.js').catch(function () {});
+  function doMove() {
+    var target = document.getElementById('targetBay').value.trim();
+    var msgBox = document.getElementById('move-message');
+    msgBox.innerHTML = '';
+    if (!currentPallet) return;
+    if (!target) {
+      msgBox.innerHTML = '<div class="banner warn">Scan or choose a target bay first.</div>';
+      return;
+    }
+    google.script.run
+      .withSuccessHandler(function () {
+        msgBox.innerHTML = '<div class="banner warn">Move completed.</div>';
+      })
+      .withFailureHandler(function (err) {
+        msgBox.innerHTML = '<div class="banner error">' + err.message + '</div>';
+      })
+      .moveToBay(currentPallet.lwhId, target);
+  }
+
+  // ── Bay picker drill-down ──────────────────────────────────────────
+
+  function loadBayGroups() {
+    if (!currentPallet || !currentPallet.location) return;
+    var list = document.getElementById('groupList');
+    list.innerHTML = '<div class="spinner" style="margin:14px auto;"></div>';
+    document.getElementById('bayBreadcrumb').textContent = currentPallet.location;
+    google.script.run
+      .withSuccessHandler(function (resp) {
+        var groups = (resp && resp.result) || [];
+        list.innerHTML = groups.map(function (g) {
+          return '<button class="group-btn" onclick="loadBaysInGroup(\'' + g + '\')">' + g + '</button>';
+        }).join('');
+      })
+      .withFailureHandler(function (err) {
+        list.innerHTML = '<div class="banner error">' + err.message + '</div>';
+      })
+      .getBayGroups(currentPallet.location);
+  }
+
+  function loadBaysInGroup(group) {
+    var list = document.getElementById('groupList');
+    list.className = 'bay-list';
+    list.innerHTML = '<div class="spinner" style="margin:14px auto;"></div>';
+    document.getElementById('bayBreadcrumb').innerHTML =
+      '<button onclick="loadBayGroups(); document.getElementById(\'groupList\').className=\'group-list\';">' +
+      currentPallet.location + '</button> / ' + group;
+
+    google.script.run
+      .withSuccessHandler(function (resp) {
+        var bays = (resp && resp.result) || [];
+        if (!bays.length) {
+          list.innerHTML = '<div class="banner warn">No bays found in ' + group + '.</div>';
+          return;
+        }
+        list.innerHTML = bays.map(function (b) {
+          return '<button class="bay-btn" onclick="useSuggestedBay(\'' + b.bayName + '\')">' + b.bayName + '</button>';
+        }).join('');
+      })
+      .withFailureHandler(function (err) {
+        list.innerHTML = '<div class="banner error">' + err.message + '</div>';
+      })
+      .getBaysInGroup(currentPallet.location, group);
+  }
+
+  // Kick off group loading once a pallet is found
+  var _origRenderResult = renderResult;
+  renderResult = function (p) {
+    _origRenderResult(p);
+    document.getElementById('groupList').className = 'group-list';
+    loadBayGroups();
+  };
+
+  // ── Native barcode scanning (BarcodeDetector, with graceful fallback) ──
+
+  function startScan() {
+    if (!('BarcodeDetector' in window)) {
+      alert('Camera scanning isn\'t supported in this browser. Type the ID instead.');
+      return;
+    }
+    // Camera capture UI is intentionally minimal here — wire up to your
+    // existing canvas-based BarcodeDetector flow from the LWH Inventory
+    // Portal / Nissan Warehouse Portal for full parity (video preview,
+    // torch toggle, etc).
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.capture = 'environment';
+    input.onchange = function (e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      var img = new Image();
+      img.onload = function () {
+        var canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        canvas.getContext('2d').drawImage(img, 0, 0);
+        new BarcodeDetector().detect(canvas).then(function (codes) {
+          if (codes.length) {
+            document.getElementById('palletId').value = codes[0].rawValue;
+          } else {
+            alert('No barcode detected — try again or type the ID.');
+          }
+        });
+      };
+      img.src = URL.createObjectURL(file);
+    };
+    input.click();
+  }
+
+  document.getElementById('palletId').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') doLookup();
   });
-}
+  document.getElementById('targetBay').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') doMove();
+  });
 </script>
+
 </body>
 </html>
