@@ -1,84 +1,472 @@
-# LWH Bay Ops
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>LWH Bay Ops</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0d1b2e">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+  :root {
+    --navy: #0d1b2e;
+    --navy-light: #16283f;
+    --navy-lighter: #1f3654;
+    --amber: #e8a33d;
+    --amber-dim: #c78a2e;
+    --text: #eef2f7;
+    --text-dim: #9fb0c3;
+    --border: #2a3f5c;
+    --danger: #d9534f;
+    --ok: #4caf7d;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--navy);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    min-height: 100vh;
+  }
+  header {
+    background: var(--navy-light);
+    border-bottom: 3px solid var(--amber);
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  header h1 {
+    font-size: 22px;
+    margin: 0;
+    letter-spacing: 0.3px;
+  }
+  header .badge {
+    font-size: 13px;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+  main {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+  }
+  .card {
+    background: var(--navy-light);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .search-row {
+    display: flex;
+    gap: 10px;
+  }
+  input[type=text] {
+    flex: 1;
+    font-size: 18px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--navy);
+    color: var(--text);
+  }
+  input[type=text]:focus {
+    outline: 2px solid var(--amber);
+    outline-offset: 1px;
+  }
+  button {
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 18px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-primary {
+    background: var(--amber);
+    color: var(--navy);
+  }
+  .btn-primary:active { background: var(--amber-dim); }
+  .btn-secondary {
+    background: var(--navy-lighter);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-block { width: 100%; }
+  .scan-btn {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .result-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px 16px;
+    font-size: 16px;
+  }
+  .result-grid .label {
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+  .result-grid .value {
+    font-weight: 500;
+  }
+  .bay-highlight {
+    background: var(--navy);
+    border: 2px solid var(--amber);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    margin-bottom: 18px;
+  }
+  .bay-highlight .label {
+    font-size: 13px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .bay-highlight .value {
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--amber);
+    margin-top: 4px;
+  }
+  .sync-note {
+    font-size: 13px;
+    color: var(--text-dim);
+    text-align: center;
+    margin-top: 4px;
+  }
+  .move-section {
+    margin-top: 18px;
+    border-top: 1px solid var(--border);
+    padding-top: 18px;
+  }
+  .move-warning {
+    font-size: 14px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--text-dim);
+    padding: 30px 10px;
+    font-size: 16px;
+  }
+  .error-state {
+    text-align: center;
+    color: var(--danger);
+    padding: 16px;
+    font-size: 16px;
+  }
+  /* Scanner overlay */
+  #scanOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 100;
+    flex-direction: column;
+  }
+  #scanOverlay.open { display: flex; }
+  #scanVideo {
+    flex: 1;
+    width: 100%;
+    object-fit: cover;
+  }
+  .scan-aim-box {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 78%;
+    max-width: 420px;
+    height: 140px;
+    border: 3px solid var(--amber);
+    border-radius: 14px;
+    box-shadow: 0 0 0 2000px rgba(0,0,0,0.35);
+  }
+  .scan-footer {
+    background: var(--navy-light);
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+  }
+  .scan-hint {
+    position: absolute;
+    top: 14px; left: 0; right: 0;
+    text-align: center;
+    color: #fff;
+    font-size: 15px;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+  }
+  .spinner {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: var(--navy);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
 
-Scan a pallet → see its current bay (from your existing hourly-synced Sheet) →
-hand off to the real Mobile Portal to actually complete the move.
+<header>
+  <h1>LWH Bay Ops</h1>
+  <span class="badge" id="syncBadge">—</span>
+</header>
 
-**This app never writes to the warehouse database or the Mobile Portal.**
-It's a read-only lookup + a launcher that pre-fills the pallet ID on the
-official move screen, so staff don't have to scan once and then retype the
-ID a second time.
+<main>
 
----
+  <div class="card">
+    <div class="search-row">
+      <input type="text" id="searchInput" placeholder="LWH ID or Customer ID" autocomplete="off" autocapitalize="off">
+      <button class="btn-primary" onclick="lookup()">Find</button>
+    </div>
+    <button class="btn-secondary btn-block scan-btn" onclick="openScanner()">
+      Scan Barcode
+    </button>
+  </div>
 
-## What's in this project
+  <div id="resultArea"></div>
 
-- `Code.gs` — Apps Script backend. Reads the existing Bay Lookup Sheet
-  (same Sheet ID as your Inventory Portal) and exposes a `lookupPallet`
-  JSON endpoint.
-- `index.html` — the PWA itself: search box, camera scan (native
-  `BarcodeDetector`, falls back to ZXing on iOS Safari), result card,
-  and the "Move This Pallet" handoff button.
-- `manifest.json`, `sw.js`, `icons/` — standard PWA install support.
+</main>
 
----
+<!-- Camera scanner overlay -->
+<div id="scanOverlay">
+  <video id="scanVideo" autoplay playsinline muted></video>
+  <div class="scan-aim-box"></div>
+  <div class="scan-hint">Centre the barcode in the box</div>
+  <div class="scan-footer">
+    <button class="btn-secondary" onclick="closeScanner()">Cancel</button>
+  </div>
+</div>
 
-## Setup
+<!-- ZXing fallback for browsers without native BarcodeDetector (iOS Safari) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zxing-library/0.20.0/index.min.js"></script>
+<script>
+// ── CONFIG ──────────────────────────────────────────────────
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbz0jPhN6ZDuy_HrLsKpTMkpKbWq9YLCykxI2ybjPsjYFT3d6ZhlTuuvBmVLOvEREBnN9w/exec';
 
-### 1. Deploy the GAS backend
-
-1. Create a **new** Apps Script project (separate from your other tools —
-   this keeps it isolated while you test).
-2. Paste in `Code.gs`.
-3. Confirm `SHEET_ID` at the top points to your Bay Lookup Sheet
-   (currently set to the same ID your Inventory Portal uses).
-4. Deploy → **New Deployment** → Web app
-   - Execute as: **Me**
-   - Who has access: **Anyone**
-5. Copy the deployment URL.
-
-### 2. Point the frontend at your backend
-
-Already done — `GAS_URL` in `index.html` is set to:
-
-```
-https://script.google.com/macros/s/AKfycbz0jPhN6ZDuy_HrLsKpTMkpKbWq9YLCykxI2ybjPsjYFT3d6ZhlTuuvBmVLOvEREBnN9w/exec
-```
-
-If you ever redeploy that Apps Script project as a **new** deployment
-(not "manage deployments → edit"), you'll get a new URL and need to update
-this line. Redeploying the *same* deployment keeps the URL stable.
-
-### 3. Confirm the move handoff parameter
-
-Also in `index.html`:
-
-```javascript
+// Handoff target for the real bay-move system. Param name is a
+// placeholder until confirmed with the developer — update PARAM_NAME
+// once BayMove.aspx's query-string handling is confirmed.
 var MOVE_BASE_URL = 'http://mobile.logistics-warehouse.biz/BayMove.aspx';
 var MOVE_PARAM_NAME = 'palletId'; // <-- swap this once confirmed
-```
 
-Once your developer confirms what query-string parameter `BayMove.aspx`
-reads on load (e.g., `palletId`, `pid`, `id`), update `MOVE_PARAM_NAME`
-here. That's the only line that needs to change for the handoff to work.
+// ── State ───────────────────────────────────────────────────
+var barcodeDetector = null;
+var zxingReader = null;
+var scanStream = null;
+var scanRAF = null;
 
-If it turns out `BayMove.aspx` **doesn't** support a prefill parameter yet,
-the button will still open the page — staff will just need to type the ID
-in themselves, same as today. Nothing breaks; you just don't get the
-time-saving part yet.
+// ── API helper (matches existing LWH PWA pattern: POST as text/plain
+//    to dodge CORS preflight; GAS doPost parses fn/args manually) ──
+function callApi(fn, args) {
+  return fetch(GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: 'fn=' + encodeURIComponent(fn) + '&args=' + encodeURIComponent(JSON.stringify(args || []))
+  }).then(function (r) { return r.json(); });
+}
 
-### 4. Push to GitHub Pages
+// ── Lookup flow ─────────────────────────────────────────────
+function lookup() {
+  var q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  renderLoading();
+  callApi('lookupPallet', [q])
+    .then(function (res) {
+      if (res.error) { renderError(res.error); return; }
+      if (!res.result) { renderEmpty(q); return; }
+      renderResult(res.result);
+    })
+    .catch(function (err) { renderError('Could not reach the server. Check connection and try again.'); });
+}
 
-Same as your other PWAs — push this folder to a repo, enable Pages on
-the root, and the app is installable from Chrome on Android.
+function renderLoading() {
+  document.getElementById('resultArea').innerHTML =
+    '<div class="card empty-state"><span class="spinner" style="border-top-color:var(--amber)"></span> Looking up…</div>';
+}
 
----
+function renderEmpty(q) {
+  document.getElementById('resultArea').innerHTML =
+    '<div class="card empty-state">No pallet found for “' + escapeHtml(q) + '.” Double-check the ID and try again.</div>';
+}
 
-## Notes for iteration
+function renderError(msg) {
+  document.getElementById('resultArea').innerHTML =
+    '<div class="card error-state">' + escapeHtml(msg) + '</div>';
+}
 
-- The bay data shown is only as fresh as your hourly Sheet sync — the app
-  makes this explicit in the UI ("Bay data syncs hourly... not live") so
-  nobody assumes it's real-time.
-- If/when the developer opens a real write path (API, stored proc, or
-  staging table — see the separate proposal doc), the "Move This Pallet"
-  button is the natural place to swap from "open BayMove.aspx" to
-  "submit directly," without changing anything else about the app.
+function renderResult(r) {
+  document.getElementById('syncBadge').textContent = 'Synced ' + (r.lastSynced || '');
+
+  var html = '';
+  html += '<div class="card">';
+  html += '  <div class="bay-highlight">';
+  html += '    <div class="label">Current Bay</div>';
+  html += '    <div class="value">' + escapeHtml(r.bayName || '—') + '</div>';
+  html += '  </div>';
+  html += '  <div class="result-grid">';
+  html += row('LWH ID', r.lwhId);
+  html += row('Customer ID', r.customerId);
+  html += row('Customer', r.customer);
+  html += row('Item', r.item);
+  html += row('Description', r.itemDesc);
+  html += row('Lot #', r.lotNum);
+  html += row('Qty', r.qty + (r.units ? ' ' + r.units : ''));
+  html += row('Location', r.location);
+  html += '  </div>';
+  html += '  <div class="sync-note">Bay data syncs hourly from the warehouse system — not live.</div>';
+  html += '  <div class="move-section">';
+  html += '    <div class="move-warning">Moving a pallet still happens in the official LWH Mobile Portal. Tap below to open it with this pallet ready to go.</div>';
+  html += '    <button class="btn-primary btn-block" onclick="handOffToMove(\'' + escapeAttr(r.lwhId || r.customerId) + '\')">Move This Pallet →</button>';
+  html += '  </div>';
+  html += '</div>';
+
+  document.getElementById('resultArea').innerHTML = html;
+}
+
+function row(label, value) {
+  return '<div class="label">' + escapeHtml(label) + '</div><div class="value">' + escapeHtml(value || '—') + '</div>';
+}
+
+function handOffToMove(palletId) {
+  var url = MOVE_BASE_URL + '?' + MOVE_PARAM_NAME + '=' + encodeURIComponent(palletId);
+  window.open(url, '_blank');
+}
+
+document.getElementById('searchInput').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') lookup();
+});
+
+// ── Scanner ─────────────────────────────────────────────────
+function openScanner() {
+  var overlay = document.getElementById('scanOverlay');
+  overlay.classList.add('open');
+  startCamera();
+}
+
+function closeScanner() {
+  document.getElementById('scanOverlay').classList.remove('open');
+  stopCamera();
+}
+
+function startCamera() {
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
+    .then(function (stream) {
+      scanStream = stream;
+      var video = document.getElementById('scanVideo');
+      video.srcObject = stream;
+      video.play();
+      video.onloadedmetadata = function () { scanLoop(); };
+    })
+    .catch(function () {
+      alert('Could not access the camera. Check permissions in your browser settings.');
+      closeScanner();
+    });
+}
+
+function stopCamera() {
+  if (scanRAF) cancelAnimationFrame(scanRAF);
+  scanRAF = null;
+  if (scanStream) {
+    scanStream.getTracks().forEach(function (t) { t.stop(); });
+    scanStream = null;
+  }
+}
+
+function scanLoop() {
+  var video = document.getElementById('scanVideo');
+  if (!video || video.readyState < 2) {
+    scanRAF = requestAnimationFrame(scanLoop);
+    return;
+  }
+
+  if (window.BarcodeDetector && !barcodeDetector) {
+    try {
+      barcodeDetector = new BarcodeDetector({
+        formats: ['code_128', 'code_39', 'code_93', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'qr_code', 'data_matrix', 'pdf417']
+      });
+    } catch (e) { barcodeDetector = null; }
+  }
+
+  if (barcodeDetector) {
+    barcodeDetector.detect(video)
+      .then(function (codes) {
+        if (codes.length > 0) { onScanResult(codes[0].rawValue); return; }
+        scanRAF = requestAnimationFrame(scanLoop);
+      })
+      .catch(function () { scanRAF = requestAnimationFrame(scanLoop); });
+  } else {
+    scanWithZXing(video);
+  }
+}
+
+function scanWithZXing(video) {
+  if (!zxingReader && window.ZXing) {
+    zxingReader = new ZXing.BrowserMultiFormatReader();
+  }
+  if (!zxingReader) {
+    scanRAF = requestAnimationFrame(function () { scanLoop(); });
+    return;
+  }
+  var canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  var ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  try {
+    var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    var lum = new ZXing.RGBLuminanceSource(imgData.data, canvas.width, canvas.height);
+    var binary = new ZXing.HybridBinarizer(lum);
+    var bmp = new ZXing.BinaryBitmap(binary);
+    var decoded = zxingReader.decode(bmp);
+    if (decoded && decoded.getText()) {
+      onScanResult(decoded.getText());
+      return;
+    }
+  } catch (e) { /* no barcode visible yet — normal */ }
+
+  scanRAF = requestAnimationFrame(function () { scanLoop(); });
+}
+
+function onScanResult(value) {
+  if (!value) return;
+  closeScanner();
+  document.getElementById('searchInput').value = value.trim();
+  lookup();
+}
+
+// ── Utilities ───────────────────────────────────────────────
+function escapeHtml(s) {
+  if (s === null || s === undefined) return '';
+  return s.toString()
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+function escapeAttr(s) {
+  return escapeHtml(s).replace(/'/g, '&#39;');
+}
+
+// ── PWA install / service worker ────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+  });
+}
+</script>
+</body>
+</html>
