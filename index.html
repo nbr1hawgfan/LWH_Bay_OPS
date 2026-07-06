@@ -5,6 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>LWH Bay Ops</title>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     :root {
       --slate-900: #0f172a;
@@ -30,85 +31,47 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       color: var(--slate-900);
     }
-    .mono {
-      font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
-    }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace; }
     header {
-      background: var(--slate-900);
-      color: white;
-      padding: 16px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 10;
+      background: var(--slate-900); color: white; padding: 16px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 10;
     }
-    header h1 {
-      font-size: 18px;
-      margin: 0;
-      font-weight: 700;
-      letter-spacing: 0.2px;
-    }
+    header h1 { font-size: 18px; margin: 0; font-weight: 700; letter-spacing: 0.2px; }
     header button.ghost {
-      background: transparent;
-      border: 1px solid var(--slate-700);
-      color: var(--slate-300);
-      border-radius: 8px;
-      padding: 8px 14px;
-      font-size: 14px;
-      font-weight: 600;
+      background: transparent; border: 1px solid var(--slate-700); color: var(--slate-300);
+      border-radius: 8px; padding: 8px 14px; font-size: 14px; font-weight: 600;
     }
     main { padding: 16px; max-width: 560px; margin: 0 auto; padding-bottom: 60px; }
     .card {
-      background: white;
-      border: 1px solid var(--slate-300);
-      border-radius: var(--radius);
-      padding: 18px;
-      margin-bottom: 14px;
+      background: white; border: 1px solid var(--slate-300); border-radius: var(--radius);
+      padding: 18px; margin-bottom: 14px;
     }
     label {
-      display: block;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--slate-700);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
+      display: block; font-size: 13px; font-weight: 700; color: var(--slate-700);
+      margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.4px;
     }
+    .input-row { display: flex; gap: 8px; margin-bottom: 14px; }
     select, input[type=text] {
-      width: 100%;
-      font-size: 18px;
-      padding: 14px 12px;
-      border: 1px solid var(--slate-300);
-      border-radius: 10px;
-      background: var(--slate-50);
-      color: var(--slate-900);
-      margin-bottom: 14px;
+      width: 100%; font-size: 18px; padding: 14px 12px; border: 1px solid var(--slate-300);
+      border-radius: 10px; background: var(--slate-50); color: var(--slate-900);
     }
-    input[type=text]:focus, select:focus {
-      outline: none;
-      border-color: var(--emerald-500);
-      background: white;
+    select { margin-bottom: 14px; }
+    input[type=text]:focus, select:focus { outline: none; border-color: var(--emerald-500); background: white; }
+    .scan-icon-btn {
+      flex-shrink: 0; width: 52px; border: none; border-radius: 10px;
+      background: var(--slate-800); color: white; font-size: 20px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
     }
+    .scan-icon-btn:active { background: var(--slate-700); }
     button.big {
-      width: 100%;
-      font-size: 18px;
-      font-weight: 700;
-      padding: 16px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      margin-bottom: 10px;
+      width: 100%; font-size: 18px; font-weight: 700; padding: 16px; border: none;
+      border-radius: 10px; cursor: pointer; margin-bottom: 10px;
     }
     button.primary { background: var(--emerald-500); color: white; }
     button.primary:active { background: var(--emerald-600); }
     button.secondary { background: var(--slate-100); color: var(--slate-800); border: 1px solid var(--slate-300); }
     button.secondary:active { background: var(--slate-300); }
-    button.scan {
-      background: var(--slate-800);
-      color: white;
-    }
     button:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .status-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
@@ -121,41 +84,19 @@
     .field { background: var(--slate-50); border-radius: 8px; padding: 10px 12px; }
     .field .k { font-size: 11px; text-transform: uppercase; color: var(--slate-500); font-weight: 700; letter-spacing: 0.3px; }
     .field .v { font-size: 16px; font-weight: 700; margin-top: 2px; }
-    .customer-banner {
-      text-align: center;
-      font-size: 26px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-      margin: 16px 0 4px;
-      color: var(--slate-900);
-    }
+    .customer-banner { text-align: center; font-size: 26px; font-weight: 800; letter-spacing: 0.5px; margin: 16px 0 4px; }
 
     .suggestion-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--emerald-100);
-      color: var(--emerald-600);
-      border: 1px solid var(--emerald-500);
-      border-radius: 999px;
-      padding: 10px 16px;
-      font-weight: 700;
-      font-size: 15px;
-      margin: 4px 6px 4px 0;
-      cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px; background: var(--emerald-100);
+      color: var(--emerald-600); border: 1px solid var(--emerald-500); border-radius: 999px;
+      padding: 10px 16px; font-weight: 700; font-size: 15px; margin: 4px 6px 4px 0; cursor: pointer;
     }
     .chip-count { font-size: 12px; opacity: 0.7; font-weight: 600; }
 
     .group-list, .bay-list { display: flex; flex-wrap: wrap; gap: 8px; }
     .group-btn, .bay-btn {
-      background: var(--slate-100);
-      border: 1px solid var(--slate-300);
-      border-radius: 8px;
-      padding: 12px 14px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      color: var(--slate-800);
+      background: var(--slate-100); border: 1px solid var(--slate-300); border-radius: 8px;
+      padding: 12px 14px; font-size: 15px; font-weight: 700; cursor: pointer; color: var(--slate-800);
     }
     .group-btn:active, .bay-btn:active { background: var(--slate-300); }
     .bay-btn { font-family: "IBM Plex Mono", ui-monospace, monospace; }
@@ -163,27 +104,92 @@
     .breadcrumb { font-size: 13px; color: var(--slate-500); margin-bottom: 10px; }
     .breadcrumb button { background: none; border: none; color: var(--emerald-600); font-weight: 700; padding: 0; font-size: 13px; cursor: pointer; }
 
-    .banner {
-      border-radius: 10px;
-      padding: 12px 14px;
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 14px;
-    }
+    .banner { border-radius: 10px; padding: 12px 14px; font-size: 14px; font-weight: 600; margin-bottom: 14px; }
     .banner.warn { background: var(--amber-100); color: #92400e; }
     .banner.error { background: var(--red-100); color: #991b1b; }
 
     .hidden { display: none !important; }
     .spinner {
-      width: 22px; height: 22px;
-      border: 3px solid var(--slate-300);
-      border-top-color: var(--emerald-500);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      margin: 20px auto;
+      width: 22px; height: 22px; border: 3px solid var(--slate-300); border-top-color: var(--emerald-500);
+      border-radius: 50%; animation: spin 0.7s linear infinite; margin: 20px auto;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .sync-note { text-align: center; font-size: 12px; color: var(--slate-500); margin-top: -4px; margin-bottom: 14px; }
+
+    /* ===================== SCAN MODAL ===================== */
+    .scan-modal-bg {
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88);
+      z-index:500; flex-direction:column; align-items:center; justify-content:center;
+    }
+    .scan-modal-bg.open { display:flex; }
+    .scan-modal {
+      background:#111; border-radius:16px; overflow:hidden;
+      width:min(420px, 96vw); box-shadow:0 8px 40px rgba(0,0,0,0.6);
+      display:flex; flex-direction:column;
+    }
+    .scan-modal-header { padding:14px 18px 10px; display:flex; align-items:center; justify-content:space-between; }
+    .scan-modal-title { font-size:15px; font-weight:700; color:#fff; }
+    .scan-modal-sub   { font-size:11px; color:rgba(255,255,255,0.45); margin-top:2px; }
+    .scan-close-btn {
+      background:rgba(255,255,255,0.1); border:none; color:#fff;
+      width:32px; height:32px; border-radius:50%; font-size:16px;
+      display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
+    }
+    .scan-viewfinder { position:relative; width:100%; height:260px; overflow:hidden; background:#000; display:block; }
+    .scan-video { position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; display:block; z-index:0; }
+    .scan-aim { position:absolute; inset:0; pointer-events:none; display:flex; align-items:center; justify-content:center; z-index:1; }
+    .scan-aim-box { position:relative; }
+    .scan-aim-box.text-mode    { width:65%; height:60px; }
+    .scan-aim-box.barcode-mode { width:80%; height:44px; }
+    .scan-aim-box::before, .scan-aim-box::after,
+    .scan-aim-box .corner-br, .scan-aim-box .corner-bl {
+      content:''; position:absolute; width:22px; height:22px; border-color:#fff; border-style:solid;
+    }
+    .scan-aim-box::before  { top:0;    left:0;  border-width:3px 0 0 3px; }
+    .scan-aim-box::after   { top:0;    right:0; border-width:3px 3px 0 0; }
+    .scan-aim-box .corner-br { bottom:0; right:0; border-width:0 3px 3px 0; }
+    .scan-aim-box .corner-bl { bottom:0; left:0;  border-width:0 0 3px 3px; }
+    .scan-line {
+      position:absolute; left:5%; right:5%; height:2px;
+      background:rgba(16,185,129,0.85); box-shadow:0 0 8px rgba(16,185,129,0.7);
+      animation:scanline 2s ease-in-out infinite; z-index:1;
+    }
+    @keyframes scanline { 0%{top:15%;opacity:0;} 10%{opacity:1;} 90%{opacity:1;} 100%{top:85%;opacity:0;} }
+    .scan-mode-row { display:flex; gap:0; border-top:1px solid rgba(255,255,255,0.08); }
+    .scan-mode-btn {
+      flex:1; padding:11px 8px; background:transparent; border:none;
+      color:rgba(255,255,255,0.45); font-size:13px; font-weight:600; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; gap:6px;
+      border-right:1px solid rgba(255,255,255,0.08);
+    }
+    .scan-mode-btn:last-child { border-right:none; }
+    .scan-mode-btn.active { background:rgba(16,185,129,0.2); color:#fff; }
+    .scan-hint { position:absolute; bottom:10px; left:0; right:0; text-align:center; font-size:11px; color:rgba(255,255,255,0.6); pointer-events:none; }
+    .scan-status { padding:8px 16px; text-align:center; font-size:12px; color:rgba(255,255,255,0.55); min-height:32px; display:flex; align-items:center; justify-content:center; gap:8px; }
+    .scan-status-spinner { width:14px; height:14px; border:2px solid rgba(255,255,255,0.2); border-top-color: var(--emerald-500); border-radius:50%; animation:spin 0.65s linear infinite; flex-shrink:0; display:none; }
+    .scan-status-spinner.show { display:block; }
+    .scan-confirm { display:none; padding:14px 18px 16px; border-top:1px solid rgba(255,255,255,0.08); }
+    .scan-confirm.show { display:block; }
+    .scan-confirm-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.4); margin-bottom:6px; }
+    .scan-confirm-input {
+      width:100%; background:rgba(255,255,255,0.08); border:1.5px solid rgba(255,255,255,0.2);
+      border-radius:8px; padding:11px 13px; font-size:18px; font-weight:700; color:#fff; outline:none;
+      font-family:"IBM Plex Mono", ui-monospace, monospace; letter-spacing:1px; margin-bottom:10px;
+    }
+    .scan-confirm-input:focus { border-color: var(--emerald-500); }
+    .scan-confirm-actions { display:flex; gap:8px; }
+    .scan-confirm-search { flex:1; background: var(--emerald-500); color:#fff; border:none; border-radius:8px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; }
+    .scan-confirm-retry {
+      background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); border:1.5px solid rgba(255,255,255,0.15);
+      border-radius:8px; padding:13px 16px; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap;
+    }
+    .scan-footer { padding:14px 18px 18px; display:flex; flex-direction: column; align-items: center; justify-content:center; }
+    .scan-capture-btn {
+      width:64px; height:64px; border-radius:50%; background:#fff; border:4px solid rgba(255,255,255,0.25);
+      display:flex; align-items:center; justify-content:center; cursor:pointer;
+      box-shadow:0 0 0 6px rgba(255,255,255,0.08);
+    }
+    .scan-capture-btn:active { transform:scale(0.93); background:#ddd; }
+    #scanCanvas { display:none; }
   </style>
 </head>
 <body>
@@ -205,18 +211,18 @@
       </select>
 
       <label for="palletId">Pallet ID</label>
-      <input type="text" id="palletId" inputmode="text" autocomplete="off" placeholder="Scan or type ID">
+      <div class="input-row">
+        <input type="text" id="palletId" inputmode="text" autocomplete="off" placeholder="Scan or type ID">
+        <button class="scan-icon-btn" onclick="openScan('palletId')" title="Scan">📷</button>
+      </div>
 
-      <button class="big scan" id="btnScan" onclick="startScan()">📷 Scan Barcode</button>
       <button class="big primary" onclick="doLookup()">Pick Up</button>
     </div>
     <div id="search-error"></div>
   </div>
 
   <!-- LOADING -->
-  <div id="screen-loading" class="hidden">
-    <div class="spinner"></div>
-  </div>
+  <div id="screen-loading" class="hidden"><div class="spinner"></div></div>
 
   <!-- RESULT SCREEN -->
   <div id="screen-result" class="hidden">
@@ -225,7 +231,6 @@
         <div class="status-dot status-ready" id="statusDot"></div>
         <div class="status-text" id="statusText">—</div>
       </div>
-
       <div class="field-grid">
         <div class="field"><div class="k">Warehouse</div><div class="v mono" id="fWarehouse">—</div></div>
         <div class="field"><div class="k">Bay Location</div><div class="v mono" id="fBay">—</div></div>
@@ -243,7 +248,10 @@
 
     <div class="card">
       <label for="targetBay">Scan To A Bay Location</label>
-      <input type="text" id="targetBay" inputmode="text" autocomplete="off" placeholder="Scan or type bay">
+      <div class="input-row">
+        <input type="text" id="targetBay" inputmode="text" autocomplete="off" placeholder="Scan or type bay">
+        <button class="scan-icon-btn" onclick="openScan('targetBay')" title="Scan">📷</button>
+      </div>
       <button class="big primary" onclick="doMove()">Move To Bay</button>
       <div id="move-message"></div>
     </div>
@@ -258,6 +266,60 @@
   </div>
 
 </main>
+
+<!-- ===================== SCAN MODAL ===================== -->
+<div class="scan-modal-bg" id="scanModalBg">
+  <div class="scan-modal">
+    <div class="scan-modal-header">
+      <div>
+        <div class="scan-modal-title" id="scanModalTitle">Scan</div>
+        <div class="scan-modal-sub">Point camera at barcode or label text</div>
+      </div>
+      <button class="scan-close-btn" onclick="closeScan()">✕</button>
+    </div>
+
+    <div class="scan-viewfinder">
+      <video id="scanVideo" style="display:none" autoplay playsinline muted></video>
+      <canvas id="scanPreview" class="scan-video"></canvas>
+      <div class="scan-aim">
+        <div class="scan-aim-box barcode-mode" id="scanAimBox">
+          <div class="corner-br"></div><div class="corner-bl"></div>
+        </div>
+      </div>
+      <div class="scan-line" id="scanLine"></div>
+      <div class="scan-hint" id="scanHint">Hold steady — barcode reads automatically</div>
+    </div>
+
+    <div class="scan-status">
+      <div class="scan-status-spinner" id="scanSpinner"></div>
+      <span id="scanStatusText">Starting camera…</span>
+    </div>
+
+    <div class="scan-mode-row">
+      <button class="scan-mode-btn active" id="modeBtnBarcode" onclick="setScanMode('barcode')">▦ Barcode</button>
+      <button class="scan-mode-btn" id="modeBtnText" onclick="setScanMode('text')">Aa Text (OCR)</button>
+    </div>
+
+    <div class="scan-confirm" id="scanConfirm">
+      <div class="scan-confirm-label">Detected — edit if needed</div>
+      <input type="text" class="scan-confirm-input" id="scanConfirmInput" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <div class="scan-confirm-actions">
+        <button class="scan-confirm-search" onclick="commitScan()">Use This ↵</button>
+        <button class="scan-confirm-retry" onclick="retryScan()">Scan Again</button>
+      </div>
+    </div>
+
+    <div class="scan-footer" id="scanFooter" style="display:none">
+      <button class="scan-capture-btn" id="scanCaptureBtn" onclick="captureAndOCR()">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3" fill="#111" stroke="none"/>
+        </svg>
+      </button>
+      <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:6px;">Tap to capture text</div>
+    </div>
+  </div>
+</div>
+<canvas id="scanCanvas"></canvas>
 
 <script>
   var currentPallet = null;
@@ -317,6 +379,8 @@
     document.getElementById('fItem').textContent = p.item || '—';
     document.getElementById('fCustomer').textContent = p.customer || '—';
     document.getElementById('fItemDesc').textContent = p.itemDesc || '';
+    document.getElementById('groupList').className = 'group-list';
+    loadBayGroups();
   }
 
   function loadSuggestions() {
@@ -355,12 +419,8 @@
       return;
     }
     google.script.run
-      .withSuccessHandler(function () {
-        msgBox.innerHTML = '<div class="banner warn">Move completed.</div>';
-      })
-      .withFailureHandler(function (err) {
-        msgBox.innerHTML = '<div class="banner error">' + err.message + '</div>';
-      })
+      .withSuccessHandler(function () { msgBox.innerHTML = '<div class="banner warn">Move completed.</div>'; })
+      .withFailureHandler(function (err) { msgBox.innerHTML = '<div class="banner error">' + err.message + '</div>'; })
       .moveToBay(currentPallet.lwhId, target);
   }
 
@@ -378,9 +438,7 @@
           return '<button class="group-btn" onclick="loadBaysInGroup(\'' + g + '\')">' + g + '</button>';
         }).join('');
       })
-      .withFailureHandler(function (err) {
-        list.innerHTML = '<div class="banner error">' + err.message + '</div>';
-      })
+      .withFailureHandler(function (err) { list.innerHTML = '<div class="banner error">' + err.message + '</div>'; })
       .getBayGroups(currentPallet.location);
   }
 
@@ -391,75 +449,349 @@
     document.getElementById('bayBreadcrumb').innerHTML =
       '<button onclick="loadBayGroups(); document.getElementById(\'groupList\').className=\'group-list\';">' +
       currentPallet.location + '</button> / ' + group;
-
     google.script.run
       .withSuccessHandler(function (resp) {
         var bays = (resp && resp.result) || [];
-        if (!bays.length) {
-          list.innerHTML = '<div class="banner warn">No bays found in ' + group + '.</div>';
-          return;
-        }
+        if (!bays.length) { list.innerHTML = '<div class="banner warn">No bays found in ' + group + '.</div>'; return; }
         list.innerHTML = bays.map(function (b) {
           return '<button class="bay-btn" onclick="useSuggestedBay(\'' + b.bayName + '\')">' + b.bayName + '</button>';
         }).join('');
       })
-      .withFailureHandler(function (err) {
-        list.innerHTML = '<div class="banner error">' + err.message + '</div>';
-      })
+      .withFailureHandler(function (err) { list.innerHTML = '<div class="banner error">' + err.message + '</div>'; })
       .getBaysInGroup(currentPallet.location, group);
   }
 
-  // Kick off group loading once a pallet is found
-  var _origRenderResult = renderResult;
-  renderResult = function (p) {
-    _origRenderResult(p);
-    document.getElementById('groupList').className = 'group-list';
-    loadBayGroups();
-  };
+  document.getElementById('palletId').addEventListener('keydown', function (e) { if (e.key === 'Enter') doLookup(); });
+  document.getElementById('targetBay').addEventListener('keydown', function (e) { if (e.key === 'Enter') doMove(); });
 
-  // ── Native barcode scanning (BarcodeDetector, with graceful fallback) ──
+  /* ============================================================
+     CAMERA SCANNING ENGINE
+     Ported from LWH Inventory Portal: video → canvas preview loop
+     (bypasses the GAS iframe camera restriction), native
+     BarcodeDetector with a ZXing fallback, OCR text mode via
+     Tesseract, beep-on-detect, confirm/edit step before committing.
+  ============================================================ */
+  var scanTarget      = 'palletId'; // 'palletId' or 'targetBay'
+  var scanStream      = null;
+  var tesseractWorker = null;
+  var tesseractReady  = false;
+  var scanMode        = 'barcode';
+  var barcodeLoop     = null;
+  var barcodeDetector = null;
+  var barcodeActive   = false;
+  var lastBeepTime    = 0;
+  var previewLoop     = null;
+  var zxingLoaded     = false;
+  var zxingReader     = null;
 
-  function startScan() {
-    if (!('BarcodeDetector' in window)) {
-      alert('Camera scanning isn\'t supported in this browser. Type the ID instead.');
-      return;
-    }
-    // Camera capture UI is intentionally minimal here — wire up to your
-    // existing canvas-based BarcodeDetector flow from the LWH Inventory
-    // Portal / Nissan Warehouse Portal for full parity (video preview,
-    // torch toggle, etc).
-    var input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.capture = 'environment';
-    input.onchange = function (e) {
-      var file = e.target.files[0];
-      if (!file) return;
-      var img = new Image();
-      img.onload = function () {
-        var canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        canvas.getContext('2d').drawImage(img, 0, 0);
-        new BarcodeDetector().detect(canvas).then(function (codes) {
-          if (codes.length) {
-            document.getElementById('palletId').value = codes[0].rawValue;
-          } else {
-            alert('No barcode detected — try again or type the ID.');
-          }
+  window.addEventListener('load', function () {
+    if ('BarcodeDetector' in window) {
+      try {
+        barcodeDetector = new BarcodeDetector({
+          formats: ['code_128', 'code_39', 'code_93', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'qr_code', 'data_matrix', 'pdf417']
         });
-      };
-      img.src = URL.createObjectURL(file);
-    };
-    input.click();
+      } catch (e) { barcodeDetector = null; }
+    }
+    try {
+      Tesseract.createWorker('eng', 1, { logger: function () {} })
+        .then(function (w) { tesseractWorker = w; tesseractReady = true; })
+        .catch(function () {});
+    } catch (e) {}
+  });
+
+  function setScanMode(mode) {
+    scanMode = mode;
+    var isText = mode === 'text';
+    document.getElementById('modeBtnBarcode').classList.toggle('active', !isText);
+    document.getElementById('modeBtnText').classList.toggle('active', isText);
+    var sf = document.getElementById('scanFooter');
+    sf.style.display = isText ? 'flex' : 'none';
+    document.getElementById('scanAimBox').className = 'scan-aim-box ' + (isText ? 'text-mode' : 'barcode-mode');
+    document.getElementById('scanHint').textContent = isText
+      ? 'Frame the text in the brackets, then tap'
+      : 'Hold steady — barcode reads automatically';
+    document.getElementById('scanConfirm').classList.remove('show');
+    if (isText) {
+      stopBarcodeLoop();
+      setScanStatus('Camera ready — tap to capture text', false);
+    } else {
+      setScanStatus('Scanning for barcodes...', false);
+      startBarcodeLoop();
+    }
   }
 
-  document.getElementById('palletId').addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') doLookup();
-  });
-  document.getElementById('targetBay').addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') doMove();
-  });
+  function openScan(target) {
+    scanTarget = target;
+    scanMode = 'barcode';
+    document.getElementById('scanModalTitle').textContent = target === 'palletId' ? 'Scan Pallet ID' : 'Scan Bay Location';
+    setScanStatus('Starting camera...', false);
+    document.getElementById('scanConfirm').classList.remove('show');
+    document.getElementById('scanFooter').style.display = 'none';
+    document.getElementById('modeBtnBarcode').classList.add('active');
+    document.getElementById('modeBtnText').classList.remove('active');
+    document.getElementById('scanAimBox').className = 'scan-aim-box barcode-mode';
+    document.getElementById('scanHint').textContent = 'Hold steady — barcode reads automatically';
+    document.getElementById('scanModalBg').classList.add('open');
+
+    navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+    }).then(function (stream) {
+      scanStream = stream;
+      var video = document.getElementById('scanVideo');
+      video.srcObject = stream;
+      video.play().then(function () {
+        setScanStatus('Starting scanner...', false);
+        startPreviewLoop();
+        startBarcodeLoop();
+      });
+    }).catch(function (err) {
+      setScanStatus('Camera error: ' + err.message, false);
+    });
+  }
+
+  function closeScan() {
+    stopBarcodeLoop();
+    stopPreviewLoop();
+    document.getElementById('scanModalBg').classList.remove('open');
+    if (scanStream) { scanStream.getTracks().forEach(function (t) { t.stop(); }); scanStream = null; }
+    document.getElementById('scanVideo').srcObject = null;
+  }
+
+  function retryScan() {
+    document.getElementById('scanConfirm').classList.remove('show');
+    if (scanMode === 'barcode') {
+      setScanStatus('Scanning for barcodes...', false);
+      startBarcodeLoop();
+    } else {
+      setScanStatus('Ready — tap to capture again', false);
+    }
+  }
+
+  function startPreviewLoop() {
+    var vid = document.getElementById('scanVideo');
+    var can = document.getElementById('scanPreview');
+    stopPreviewLoop();
+    function draw() {
+      if (!scanStream) return;
+      if (vid.videoWidth > 0 && vid.videoHeight > 0) {
+        if (can.width !== vid.videoWidth) can.width = vid.videoWidth;
+        if (can.height !== vid.videoHeight) can.height = vid.videoHeight;
+        try { can.getContext('2d').drawImage(vid, 0, 0, can.width, can.height); } catch (e) {}
+      }
+      previewLoop = requestAnimationFrame(draw);
+    }
+    draw();
+    vid.addEventListener('loadeddata', draw);
+    vid.addEventListener('playing', draw);
+  }
+
+  function stopPreviewLoop() {
+    if (previewLoop) { cancelAnimationFrame(previewLoop); previewLoop = null; }
+  }
+
+  function getBarcodeCanvas_(srcCanvas) {
+    var sw = srcCanvas.width, sh = srcCanvas.height;
+    var cw = Math.round(sw * 0.9), ch = Math.round(sh * 0.5);
+    var cx = Math.round((sw - cw) / 2), cy = Math.round((sh - ch) / 2);
+    var out = document.createElement('canvas');
+    out.width = Math.round(cw * 1.5);
+    out.height = Math.round(ch * 1.5);
+    var ctx = out.getContext('2d');
+    ctx.filter = 'grayscale(1) contrast(2.0) brightness(1.05)';
+    ctx.drawImage(srcCanvas, cx, cy, cw, ch, 0, 0, out.width, out.height);
+    return out;
+  }
+
+  function startBarcodeLoop() {
+    barcodeActive = true;
+    if (barcodeDetector) {
+      setScanStatus('Scanning (native engine)...', false);
+      pollBarcode();
+    } else {
+      loadZXingFallback();
+    }
+  }
+
+  function stopBarcodeLoop() {
+    barcodeActive = false;
+    if (barcodeLoop) { clearTimeout(barcodeLoop); barcodeLoop = null; }
+  }
+
+  function pollBarcode() {
+    if (!barcodeActive || !barcodeDetector) return;
+    var preview = document.getElementById('scanPreview');
+    if (!preview || !preview.width || !preview.height) {
+      barcodeLoop = setTimeout(function () { if (barcodeActive) pollBarcode(); }, 150);
+      return;
+    }
+    var bc = getBarcodeCanvas_(preview);
+    barcodeDetector.detect(bc).then(function (codes) {
+      if (!barcodeActive) return;
+      if (codes && codes.length > 0 && codes[0].rawValue) {
+        stopBarcodeLoop();
+        playBeep();
+        showScanConfirm(codes[0].rawValue);
+      } else {
+        barcodeLoop = setTimeout(function () { if (barcodeActive) pollBarcode(); }, 100);
+      }
+    }).catch(function () {
+      barcodeLoop = setTimeout(function () { if (barcodeActive) pollBarcode(); }, 200);
+    });
+  }
+
+  function loadZXingFallback() {
+    if (zxingLoaded) { startZXing(); return; }
+    setScanStatus('Loading barcode engine...', true);
+    var s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.4/umd/index.min.js';
+    s.onload = function () { zxingLoaded = true; setScanStatus('Scanning (ZXing engine)...', false); startZXing(); };
+    s.onerror = function () {
+      var s2 = document.createElement('script');
+      s2.src = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
+      s2.onload = function () { zxingLoaded = true; setScanStatus('Scanning (ZXing fallback)...', false); startZXing(); };
+      s2.onerror = function () { setScanStatus('Barcode engine unavailable — switch to Text (OCR) mode', false); };
+      document.head.appendChild(s2);
+    };
+    document.head.appendChild(s);
+  }
+
+  function startZXing() {
+    try {
+      var ReaderClass = (window.ZXingBrowser && window.ZXingBrowser.BrowserMultiFormatReader) ||
+                         (window.ZXing && window.ZXing.BrowserMultiFormatReader);
+      if (!ReaderClass) { setScanStatus('Barcode reader not found — switch to Text mode', false); return; }
+      zxingReader = new ReaderClass();
+      barcodeActive = true;
+      pollZXing();
+    } catch (e) {
+      setScanStatus('Barcode error: ' + e.message, false);
+    }
+  }
+
+  function pollZXing() {
+    if (!barcodeActive || !zxingReader) return;
+    var preview = document.getElementById('scanPreview');
+    if (!preview || !preview.width) { setTimeout(pollZXing, 200); return; }
+    var bc = getBarcodeCanvas_(preview);
+    try {
+      var resultPromise = zxingReader.decodeFromCanvas
+        ? zxingReader.decodeFromCanvas(bc)
+        : Promise.resolve(zxingReader.decode(bc));
+      resultPromise.then(function (result) {
+        if (!barcodeActive) return;
+        var text = result && (result.getText ? result.getText() : result.text);
+        if (text) { stopBarcodeLoop(); playBeep(); showScanConfirm(text); }
+        else { setTimeout(function () { if (barcodeActive) pollZXing(); }, 150); }
+      }).catch(function () {
+        setTimeout(function () { if (barcodeActive) pollZXing(); }, 150);
+      });
+    } catch (e) {
+      setTimeout(function () { if (barcodeActive) pollZXing(); }, 300);
+    }
+  }
+
+  function playBeep() {
+    var now = Date.now();
+    if (now - lastBeepTime < 1000) return;
+    lastBeepTime = now;
+    try {
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      var osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = 1800; osc.type = 'sine';
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.12);
+    } catch (e) {}
+  }
+
+  function captureAndOCR() {
+    var video = document.getElementById('scanVideo');
+    var canvas = document.getElementById('scanCanvas');
+    if (!video.videoWidth) { setScanStatus('Camera not ready yet — try again', false); return; }
+    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    var cw = canvas.width, ch = canvas.height;
+    var cropW = Math.round(cw * 0.65), cropH = Math.round(ch * 0.33);
+    var cropX = Math.round((cw - cropW) / 2), cropY = Math.round((ch - cropH) / 2);
+    var cropCanvas = document.createElement('canvas');
+    cropCanvas.width = cropW * 2; cropCanvas.height = cropH * 2;
+    var cropCtx = cropCanvas.getContext('2d');
+    cropCtx.filter = 'grayscale(1) contrast(1.8) brightness(1.1)';
+    cropCtx.drawImage(canvas, cropX, cropY, cropW, cropH, 0, 0, cropCanvas.width, cropCanvas.height);
+    document.getElementById('scanCaptureBtn').disabled = true;
+    setScanStatus('Reading text…', true);
+    runOCR(cropCanvas.toDataURL('image/png'));
+  }
+
+  function runOCR(imageData) {
+    var options = {
+      tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 -',
+      preserve_interword_spaces: '0'
+    };
+    var doOCR = function (worker) {
+      worker.recognize(imageData, options).then(function (result) {
+        var raw = result.data.text || '';
+        var token = extractBestToken(raw);
+        if (token) {
+          showScanConfirm(token);
+        } else {
+          setScanStatus('Could not read text clearly — try again closer', false);
+          document.getElementById('scanCaptureBtn').disabled = false;
+        }
+      }).catch(function (err) {
+        setScanStatus('OCR error — ' + err.message, false);
+        document.getElementById('scanCaptureBtn').disabled = false;
+      });
+    };
+    if (tesseractReady && tesseractWorker) {
+      doOCR(tesseractWorker);
+    } else {
+      Tesseract.createWorker('eng', 1, { logger: function () {} })
+        .then(function (w) { tesseractWorker = w; tesseractReady = true; doOCR(w); })
+        .catch(function (err) {
+          setScanStatus('OCR engine failed: ' + err.message, false);
+          document.getElementById('scanCaptureBtn').disabled = false;
+        });
+    }
+  }
+
+  function extractBestToken(raw) {
+    var cleaned = raw.replace(/\n/g, ' ').replace(/[^A-Za-z0-9 ]/g, '').trim().toUpperCase();
+    if (!cleaned) return '';
+    var tokens = cleaned.split(/\s+/).filter(function (t) { return t.length >= 3; });
+    if (!tokens.length) return cleaned.replace(/\s+/g, '').slice(0, 30) || '';
+    var scored = tokens.map(function (t) {
+      var mixed = /[A-Z]/.test(t) && /[0-9]/.test(t);
+      var lenOk = t.length >= 3 && t.length <= 20;
+      return { t: t, score: (mixed ? 20 : 0) + (lenOk ? 10 : 0) + t.length };
+    });
+    scored.sort(function (a, b) { return b.score - a.score; });
+    return scored[0].t;
+  }
+
+  function showScanConfirm(token) {
+    setScanStatus('Detected — confirm or edit below', false);
+    var input = document.getElementById('scanConfirmInput');
+    input.value = token;
+    document.getElementById('scanConfirm').classList.add('show');
+    setTimeout(function () { input.focus(); input.select(); }, 80);
+  }
+
+  function commitScan() {
+    var val = document.getElementById('scanConfirmInput').value.trim();
+    if (!val) return;
+    closeScan();
+    document.getElementById(scanTarget).value = val;
+    if (scanTarget === 'palletId') {
+      doLookup();
+    }
+  }
+
+  function setScanStatus(msg, spinning) {
+    document.getElementById('scanStatusText').textContent = msg;
+    document.getElementById('scanSpinner').classList.toggle('show', !!spinning);
+  }
 </script>
 
 </body>
