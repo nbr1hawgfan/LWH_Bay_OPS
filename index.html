@@ -57,6 +57,7 @@
     display: block; font-size: 13px; font-weight: 700; color: var(--slate-700);
     margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.4px;
   }
+  .field-hint { font-size: 12px; color: var(--slate-500); margin: -8px 0 12px; }
   .input-row { display: flex; gap: 8px; margin-bottom: 14px; }
   select, input[type=text] {
     width: 100%; font-size: 18px; padding: 14px 12px; border: 1px solid var(--slate-300);
@@ -79,6 +80,10 @@
   button.secondary { background: var(--slate-100); color: var(--slate-800); border: 1px solid var(--slate-300); }
   button.secondary:active { background: var(--slate-300); }
   button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .ghost-inline {
+    background: none; border: none; color: var(--emerald-600); font-weight: 700;
+    font-size: 13px; padding: 0; cursor: pointer;
+  }
 
   .status-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
   .status-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
@@ -120,6 +125,54 @@
     border-radius: 50%; animation: spin 0.7s linear infinite; margin: 20px auto;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ===================== HOME MENU ===================== */
+  .home-tile {
+    display: flex; align-items: center; gap: 14px; cursor: pointer;
+    transition: background 0.1s, transform 0.1s;
+  }
+  .home-tile:active { transform: scale(0.98); background: var(--slate-50); }
+  .home-tile-icon {
+    width: 52px; height: 52px; flex-shrink: 0; border-radius: 12px;
+    background: var(--slate-100); display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+  }
+  .home-tile-body { flex: 1; }
+  .home-tile-title { font-size: 17px; font-weight: 800; color: var(--slate-900); }
+  .home-tile-sub { font-size: 13px; color: var(--slate-500); margin-top: 2px; line-height: 1.4; }
+  .home-tile-arrow { color: var(--slate-300); font-size: 22px; flex-shrink: 0; }
+
+  /* ===================== BAY CONSOLIDATION ===================== */
+  .consol-status-card { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .consol-status-label { font-size: 11px; text-transform: uppercase; color: var(--slate-500); font-weight: 700; letter-spacing: 0.4px; }
+  .consol-target-bay { font-size: 24px; font-weight: 800; margin-top: 2px; }
+
+  .consol-tally-card { text-align: center; }
+  .consol-tally-num { font-size: 46px; font-weight: 800; color: var(--emerald-600); line-height: 1; }
+  .consol-tally-label { font-size: 12px; color: var(--slate-500); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 700; margin-top: 4px; }
+
+  .banner-flash { border-radius: 10px; padding: 10px 14px; font-size: 14px; font-weight: 600; margin-top: 4px; }
+  .banner-flash.success { background: var(--emerald-100); color: #065f46; }
+  .banner-flash.warn    { background: var(--amber-100); color: #92400e; }
+  .banner-flash.error   { background: var(--red-100); color: #991b1b; }
+  .banner-flash.info    { background: var(--slate-100); color: var(--slate-700); }
+
+  .consol-empty { color: var(--slate-500); font-size: 14px; padding: 6px 0; }
+  .consol-row { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--slate-100); }
+  .consol-row:last-child { border-bottom: none; }
+  .consol-row-icon {
+    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; margin-top: 1px;
+    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px;
+  }
+  .consol-row.moved .consol-row-icon { background: var(--emerald-100); color: var(--emerald-600); }
+  .consol-row.pending .consol-row-icon { background: var(--amber-100); color: #92400e; }
+  .consol-row.notfound .consol-row-icon, .consol-row.error .consol-row-icon { background: var(--red-100); color: #991b1b; }
+  .consol-row-id { font-size: 15px; font-weight: 700; }
+  .consol-row-sub { font-size: 12px; color: var(--slate-500); margin-top: 1px; }
+
+  .done-summary-num { font-size: 42px; font-weight: 800; color: var(--emerald-600); text-align: center; }
+  .done-summary-label { text-align: center; color: var(--slate-500); font-size: 13px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.4px; margin-top: 4px; }
+  .done-summary-sub { text-align: center; color: var(--slate-500); font-size: 12px; margin-top: 6px; }
 
   /* ===================== SCAN MODAL ===================== */
   .scan-modal-bg {
@@ -173,6 +226,22 @@
   .scan-status { padding:8px 16px; text-align:center; font-size:12px; color:rgba(255,255,255,0.55); min-height:32px; display:flex; align-items:center; justify-content:center; gap:8px; }
   .scan-status-spinner { width:14px; height:14px; border:2px solid rgba(255,255,255,0.2); border-top-color: var(--emerald-500); border-radius:50%; animation:spin 0.65s linear infinite; flex-shrink:0; display:none; }
   .scan-status-spinner.show { display:block; }
+
+  /* Fast-scan bar — only shown for the bay-consolidation scan loop.
+     Keeps a running tally + a Done button visible the whole time the
+     camera stays open, since this mode never auto-closes on a hit. */
+  .scan-fast-bar {
+    display:none; align-items:center; justify-content:space-between;
+    padding:10px 16px; border-top:1px solid rgba(255,255,255,0.08);
+    background:rgba(16,185,129,0.08);
+  }
+  .scan-fast-bar.show { display:flex; }
+  .scan-fast-tally { color:#fff; font-size:13px; font-weight:700; }
+  .scan-fast-done {
+    background: var(--emerald-500); color:#fff; border:none; border-radius:8px;
+    padding:9px 16px; font-size:13px; font-weight:700; cursor:pointer;
+  }
+
   .scan-confirm { display:none; padding:14px 18px 16px; border-top:1px solid rgba(255,255,255,0.08); }
   .scan-confirm.show { display:block; }
   .scan-confirm-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.4); margin-bottom:6px; }
@@ -207,21 +276,35 @@
 
 <main>
 
-  <!-- SEARCH SCREEN -->
-  <div id="screen-search">
-    <div class="card">
-      <label for="palletType">Pallet ID Type</label>
-      <select id="palletType">
-        <option value="LWH ID">LWH ID</option>
-        <option value="Customer ID">Customer ID</option>
-      </select>
+  <!-- ===================== HOME ===================== -->
+  <div id="screen-home">
+    <div class="card home-tile" onclick="goSearch()">
+      <div class="home-tile-icon">🔎</div>
+      <div class="home-tile-body">
+        <div class="home-tile-title">Look Up / Move One Pallet</div>
+        <div class="home-tile-sub">Find a pallet by LWH ID or Customer ID, then move it to a bay.</div>
+      </div>
+      <div class="home-tile-arrow">›</div>
+    </div>
+    <div class="card home-tile" onclick="goConsolSetup()">
+      <div class="home-tile-icon">📦</div>
+      <div class="home-tile-body">
+        <div class="home-tile-title">Consolidate A Bay</div>
+        <div class="home-tile-sub">Pick a target bay once, then scan pallet after pallet — no stopping to reselect.</div>
+      </div>
+      <div class="home-tile-arrow">›</div>
+    </div>
+  </div>
 
+  <!-- ===================== SINGLE PALLET SEARCH ===================== -->
+  <div id="screen-search" class="hidden">
+    <div class="card">
       <label for="palletId">Pallet ID</label>
+      <div class="field-hint">Works with either LWH ID or Customer ID — no need to choose which.</div>
       <div class="input-row">
         <input type="text" id="palletId" inputmode="text" autocomplete="off" placeholder="Scan or type ID">
         <button class="scan-icon-btn" onclick="openScan('palletId')" title="Scan">📷</button>
       </div>
-
       <button class="big primary" onclick="doLookup()">Pick Up</button>
     </div>
     <div id="search-error"></div>
@@ -230,7 +313,7 @@
   <!-- LOADING -->
   <div id="screen-loading" class="hidden"><div class="spinner"></div></div>
 
-  <!-- RESULT SCREEN -->
+  <!-- SINGLE PALLET RESULT -->
   <div id="screen-result" class="hidden">
     <div class="card">
       <div class="status-row">
@@ -268,7 +351,81 @@
       <div id="bayPicker"><div class="group-list" id="groupList"></div></div>
     </div>
 
-    <button class="big secondary" onclick="goHome()">Start Over</button>
+    <button class="big secondary" onclick="goSearch()">Look Up Another Pallet</button>
+    <button class="big secondary" onclick="goHome()">Main Menu</button>
+  </div>
+
+  <!-- ===================== BAY CONSOLIDATION: SETUP ===================== -->
+  <div id="screen-consol-setup" class="hidden">
+    <div class="card">
+      <label for="consolBayInput">Target Bay</label>
+      <div class="field-hint">Every pallet you scan next goes here — set it once.</div>
+      <div class="input-row">
+        <input type="text" id="consolBayInput" inputmode="text" autocomplete="off" placeholder="Scan or type bay">
+        <button class="scan-icon-btn" onclick="openScan('consolBay')" title="Scan">📷</button>
+      </div>
+      <button class="big primary" onclick="startConsolScan()">Start Scanning</button>
+      <div id="consol-setup-error"></div>
+    </div>
+
+    <div class="card">
+      <label>Or Choose A Bay Location</label>
+      <select id="consolWarehouseSelect" onchange="loadConsolGroups()">
+        <option value="">Select Warehouse…</option>
+      </select>
+      <div class="breadcrumb" id="consolBreadcrumb"></div>
+      <div id="consolBayPicker"><div class="group-list" id="consolGroupList"></div></div>
+    </div>
+
+    <button class="big secondary" onclick="goHome()">Main Menu</button>
+  </div>
+
+  <!-- ===================== BAY CONSOLIDATION: SCAN LOOP ===================== -->
+  <div id="screen-consol-scan" class="hidden">
+    <div class="card consol-status-card">
+      <div>
+        <div class="consol-status-label">Consolidating To</div>
+        <div class="consol-target-bay mono" id="consolTargetBayDisplay">—</div>
+      </div>
+      <button class="ghost-inline" onclick="changeConsolBay()">Change Bay</button>
+    </div>
+
+    <div class="card consol-tally-card">
+      <div class="consol-tally-num" id="consolTallyNum">0</div>
+      <div class="consol-tally-label">Pallets Moved</div>
+    </div>
+
+    <div class="card">
+      <label for="consolScanInput">Scan Pallet</label>
+      <div class="field-hint">Keep scanning — each pallet moves automatically, no stopping between them.</div>
+      <div class="input-row">
+        <input type="text" id="consolScanInput" inputmode="text" autocomplete="off" placeholder="Scan or type pallet ID">
+        <button class="scan-icon-btn" onclick="openScan('consolScan')" title="Scan">📷</button>
+      </div>
+      <div id="consolFlash"></div>
+    </div>
+
+    <div class="card">
+      <label>Scanned This Session (<span id="consolListCount">0</span>)</label>
+      <div id="consolList"></div>
+    </div>
+
+    <button class="big primary" onclick="finishConsolSession()">Done</button>
+  </div>
+
+  <!-- ===================== BAY CONSOLIDATION: SUMMARY ===================== -->
+  <div id="screen-consol-done" class="hidden">
+    <div class="card">
+      <div class="done-summary-num" id="consolDoneTally">0</div>
+      <div class="done-summary-label">Pallets Moved To <span id="consolDoneTargetBay" class="mono">—</span></div>
+      <div class="done-summary-sub"><span id="consolDoneAttempts">0</span> scanned this session</div>
+    </div>
+    <div class="card">
+      <label>Session Detail</label>
+      <div id="consolDoneList"></div>
+    </div>
+    <button class="big primary" onclick="consolidateAnother()">Consolidate Another Bay</button>
+    <button class="big secondary" onclick="goHome()">Main Menu</button>
   </div>
 
 </main>
@@ -279,7 +436,7 @@
     <div class="scan-modal-header">
       <div>
         <div class="scan-modal-title" id="scanModalTitle">Scan</div>
-        <div class="scan-modal-sub">Point camera at barcode or label text</div>
+        <div class="scan-modal-sub" id="scanModalSub">Point camera at barcode or label text</div>
       </div>
       <button class="scan-close-btn" onclick="closeScan()">✕</button>
     </div>
@@ -304,6 +461,13 @@
     <div class="scan-mode-row">
       <button class="scan-mode-btn active" id="modeBtnBarcode" onclick="setScanMode('barcode')">▦ Barcode</button>
       <button class="scan-mode-btn" id="modeBtnText" onclick="setScanMode('text')">Aa Text (OCR)</button>
+    </div>
+
+    <!-- Only shown for the bay-consolidation scan loop: stays visible across
+         many scans since that mode never auto-closes the modal on a hit. -->
+    <div class="scan-fast-bar" id="scanFastBar">
+      <div class="scan-fast-tally">Moved: <span id="scanFastTallyNum">0</span></div>
+      <button class="scan-fast-done" onclick="doneScanningFromModal()">Done Scanning</button>
     </div>
 
     <div class="scan-confirm" id="scanConfirm">
@@ -370,8 +534,13 @@
 
   var currentPallet = null;
 
+  var ALL_SCREENS = [
+    'screen-home', 'screen-search', 'screen-loading', 'screen-result',
+    'screen-consol-setup', 'screen-consol-scan', 'screen-consol-done'
+  ];
+
   function show(id) {
-    ['screen-search', 'screen-loading', 'screen-result'].forEach(function (s) {
+    ALL_SCREENS.forEach(function (s) {
       document.getElementById(s).classList.toggle('hidden', s !== id);
     });
   }
@@ -385,8 +554,16 @@
     document.getElementById('targetBay').value = '';
     document.getElementById('groupList').innerHTML = '';
     document.getElementById('bayBreadcrumb').innerHTML = '';
-    show('screen-search');
+    show('screen-home');
   }
+
+  function goSearch() {
+    document.getElementById('search-error').innerHTML = '';
+    show('screen-search');
+    setTimeout(function () { document.getElementById('palletId').focus(); }, 50);
+  }
+
+  // ── Single pallet lookup / move ─────────────────────────────────────
 
   function doLookup() {
     var id = document.getElementById('palletId').value.trim();
@@ -472,7 +649,7 @@
       });
   }
 
-  // ── Bay picker drill-down ──────────────────────────────────────────
+  // ── Single-pallet bay picker drill-down ─────────────────────────────
 
   function loadBayGroups() {
     if (!currentPallet || !currentPallet.location) return;
@@ -510,14 +687,232 @@
   document.getElementById('palletId').addEventListener('keydown', function (e) { if (e.key === 'Enter') doLookup(); });
   document.getElementById('targetBay').addEventListener('keydown', function (e) { if (e.key === 'Enter') doMove(); });
 
+  // ── Bay consolidation: setup (pick target bay) ──────────────────────
+
+  var consolTargetBay = '';
+  var consolList = [];       // [{ id, status: 'moved'|'pending'|'notfound'|'error', item, customer, note }]
+  var consolMovedCount = 0;
+
+  function goConsolSetup() {
+    document.getElementById('consolBayInput').value = '';
+    document.getElementById('consolWarehouseSelect').value = '';
+    document.getElementById('consolGroupList').innerHTML = '';
+    document.getElementById('consolGroupList').className = 'group-list';
+    document.getElementById('consolBreadcrumb').innerHTML = '';
+    document.getElementById('consol-setup-error').innerHTML = '';
+    show('screen-consol-setup');
+    loadConsolWarehouses();
+  }
+
+  function loadConsolWarehouses() {
+    var sel = document.getElementById('consolWarehouseSelect');
+    api('getWarehouses')
+      .then(function (resp) {
+        var whs = (resp && resp.data) || [];
+        sel.innerHTML = '<option value="">Select Warehouse…</option>' +
+          whs.map(function (w) { return '<option value="' + w + '">' + w + '</option>'; }).join('');
+      })
+      .catch(function (err) {
+        document.getElementById('consol-setup-error').innerHTML =
+          '<div class="banner error">Could not load warehouses: ' + err.message + '</div>';
+      });
+  }
+
+  function loadConsolGroups() {
+    var wh = document.getElementById('consolWarehouseSelect').value;
+    var list = document.getElementById('consolGroupList');
+    document.getElementById('consolBreadcrumb').textContent = wh || '';
+    if (!wh) { list.innerHTML = ''; return; }
+    list.className = 'group-list';
+    list.innerHTML = '<div class="spinner" style="margin:14px auto;"></div>';
+    api('getBayGroups', { warehouse: wh })
+      .then(function (resp) {
+        var groups = (resp && resp.data) || [];
+        list.innerHTML = groups.map(function (g) {
+          return '<button class="group-btn" onclick="loadConsolBaysInGroup(\'' + wh + '\',\'' + g + '\')">' + g + '</button>';
+        }).join('');
+      })
+      .catch(function (err) { list.innerHTML = '<div class="banner error">' + err.message + '</div>'; });
+  }
+
+  function loadConsolBaysInGroup(wh, group) {
+    var list = document.getElementById('consolGroupList');
+    list.className = 'bay-list';
+    list.innerHTML = '<div class="spinner" style="margin:14px auto;"></div>';
+    document.getElementById('consolBreadcrumb').innerHTML =
+      '<button onclick="loadConsolGroups()">' + wh + '</button> / ' + group;
+    api('getBaysInGroup', { warehouse: wh, group: group })
+      .then(function (resp) {
+        var bays = (resp && resp.data) || [];
+        if (!bays.length) { list.innerHTML = '<div class="banner warn">No bays found in ' + group + '.</div>'; return; }
+        list.innerHTML = bays.map(function (b) {
+          return '<button class="bay-btn" onclick="setConsolBay(\'' + b.bayName + '\')">' + b.bayName + '</button>';
+        }).join('');
+      })
+      .catch(function (err) { list.innerHTML = '<div class="banner error">' + err.message + '</div>'; });
+  }
+
+  function setConsolBay(bayName) {
+    document.getElementById('consolBayInput').value = bayName;
+  }
+
+  function startConsolScan() {
+    var bay = document.getElementById('consolBayInput').value.trim();
+    var errBox = document.getElementById('consol-setup-error');
+    errBox.innerHTML = '';
+    if (!bay) {
+      errBox.innerHTML = '<div class="banner warn">Scan, type, or choose a target bay first.</div>';
+      return;
+    }
+    consolTargetBay = bay;
+    consolList = [];
+    consolMovedCount = 0;
+    document.getElementById('consolTargetBayDisplay').textContent = bay;
+    document.getElementById('consolFlash').innerHTML = '';
+    document.getElementById('consolScanInput').value = '';
+    renderConsolList();
+    updateConsolTallyDisplays();
+    show('screen-consol-scan');
+    setTimeout(function () { document.getElementById('consolScanInput').focus(); }, 50);
+  }
+
+  function changeConsolBay() {
+    show('screen-consol-setup');
+  }
+
+  // ── Bay consolidation: scan loop ─────────────────────────────────────
+
+  function updateConsolTallyDisplays() {
+    document.getElementById('consolTallyNum').textContent = consolMovedCount;
+    document.getElementById('consolListCount').textContent = consolList.length;
+    var modalTally = document.getElementById('scanFastTallyNum');
+    if (modalTally) modalTally.textContent = consolMovedCount;
+  }
+
+  function processConsolScan() {
+    var input = document.getElementById('consolScanInput');
+    var val = input.value.trim();
+    input.value = '';
+    if (!val) return;
+    processConsolScanValue(val);
+  }
+  document.getElementById('consolScanInput').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') processConsolScan();
+  });
+
+  /**
+   * Looks up a scanned/typed pallet ID and moves it to the locked-in
+   * consolTargetBay. Always resolves (never rejects) so callers — the
+   * manual Enter-key path and the fast camera-scan path — can both
+   * react without extra error handling. moveToBay() is currently a
+   * backend stub (write path to the live WMS pending IT), so a
+   * validated pallet whose move can't complete yet is still logged
+   * and counted as "pending" rather than treated as a failure.
+   */
+  function processConsolScanValue(val) {
+    flashConsol('Looking up ' + val + '…', 'info');
+    return api('lookupPallet', { id: val }).then(function (resp) {
+      if (!resp.success || !resp.data) {
+        addConsolEntry({ id: val, status: 'notfound' });
+        var notFoundMsg = val + ' — not found';
+        flashConsol(notFoundMsg, 'error');
+        return { message: notFoundMsg };
+      }
+      var pallet = resp.data;
+      return api('moveToBay', { palletId: pallet.lwhId, targetBay: consolTargetBay }, 'POST')
+        .then(function (mvResp) {
+          if (!mvResp.success) throw new Error(mvResp.error || 'Move failed');
+          addConsolEntry({ id: pallet.lwhId, status: 'moved', item: pallet.item, customer: pallet.customer });
+          consolMovedCount++;
+          updateConsolTallyDisplays();
+          var msg = pallet.lwhId + ' ✓ moved (' + consolMovedCount + ' total)';
+          flashConsol(msg, 'success');
+          return { message: msg };
+        })
+        .catch(function (err) {
+          var pending = /not yet implemented/i.test(err.message);
+          addConsolEntry({
+            id: pallet.lwhId, status: pending ? 'pending' : 'error',
+            item: pallet.item, customer: pallet.customer, note: err.message
+          });
+          var msg;
+          if (pending) {
+            consolMovedCount++;
+            updateConsolTallyDisplays();
+            msg = pallet.lwhId + ' validated (' + consolMovedCount + ' total, pending IT go-live)';
+            flashConsol(msg, 'warn');
+          } else {
+            msg = pallet.lwhId + ' — ' + err.message;
+            flashConsol(msg, 'error');
+          }
+          return { message: msg };
+        });
+    }).catch(function (err) {
+      addConsolEntry({ id: val, status: 'error', note: err.message });
+      var msg = 'Lookup failed: ' + err.message;
+      flashConsol(msg, 'error');
+      return { message: msg };
+    });
+  }
+
+  function addConsolEntry(entry) {
+    consolList.unshift(entry);
+    renderConsolList();
+    updateConsolTallyDisplays();
+  }
+
+  function renderConsolList() {
+    var box = document.getElementById('consolList');
+    if (!consolList.length) { box.innerHTML = '<div class="consol-empty">No pallets scanned yet.</div>'; return; }
+    box.innerHTML = consolList.map(function (e) {
+      var icon = e.status === 'moved' ? '✓' : e.status === 'pending' ? '⏳' : '✕';
+      var cls  = e.status === 'moved' ? 'moved' : e.status === 'pending' ? 'pending' : 'notfound';
+      var sub  = e.status === 'notfound' ? 'Not found'
+               : e.status === 'pending'  ? 'Validated — pending IT go-live'
+               : e.status === 'error'    ? (e.note || 'Error')
+               : [e.item, e.customer].filter(Boolean).join(' · ');
+      return '<div class="consol-row ' + cls + '">' +
+               '<div class="consol-row-icon">' + icon + '</div>' +
+               '<div class="consol-row-body">' +
+                 '<div class="consol-row-id mono">' + e.id + '</div>' +
+                 '<div class="consol-row-sub">' + sub + '</div>' +
+               '</div>' +
+             '</div>';
+    }).join('');
+  }
+
+  function flashConsol(msg, kind) {
+    var cls = 'banner-flash ' + (kind || 'info');
+    document.getElementById('consolFlash').innerHTML = '<div class="' + cls + '">' + msg + '</div>';
+  }
+
+  function finishConsolSession() {
+    document.getElementById('consolDoneTargetBay').textContent = consolTargetBay;
+    document.getElementById('consolDoneTally').textContent = consolMovedCount;
+    document.getElementById('consolDoneAttempts').textContent = consolList.length;
+    document.getElementById('consolDoneList').innerHTML = document.getElementById('consolList').innerHTML;
+    show('screen-consol-done');
+  }
+
+  function consolidateAnother() {
+    goConsolSetup();
+  }
+
   /* ============================================================
      CAMERA SCANNING ENGINE
      Same engine as LWH Inventory Portal: video → canvas preview
      loop, native BarcodeDetector with ZXing fallback, OCR text
-     mode via Tesseract, beep-on-detect, confirm/edit step.
-     Unaffected by the API transport change above.
+     mode via Tesseract, beep-on-detect.
+
+     For the bay-consolidation scan loop ("consolScan" target),
+     barcode hits skip the confirm/edit step entirely and process
+     immediately, then the camera keeps scanning for the next
+     pallet — this is the "fast scan" mode. Every other target
+     (single pallet lookup, single move's target bay, and the
+     consolidation setup's target bay) keeps the original
+     confirm-then-close behavior, since those are one-value fields.
   ============================================================ */
-  var scanTarget      = 'palletId'; // 'palletId' or 'targetBay'
+  var scanTarget      = 'palletId';
   var scanStream      = null;
   var tesseractWorker = null;
   var tesseractReady  = false;
@@ -529,6 +924,10 @@
   var previewLoop     = null;
   var zxingLoaded     = false;
   var zxingReader     = null;
+
+  var fastScanMode     = false; // true only for the consolidation scan loop
+  var lastFastScanValue = null;
+  var lastFastScanTime  = 0;
 
   window.addEventListener('load', function () {
     if ('BarcodeDetector' in window) {
@@ -544,6 +943,11 @@
         .catch(function () {});
     } catch (e) {}
   });
+
+  function getScanFieldId(target) {
+    if (target === 'consolBay') return 'consolBayInput';
+    return target; // 'palletId', 'targetBay'
+  }
 
   function setScanMode(mode) {
     scanMode = mode;
@@ -568,8 +972,23 @@
 
   function openScan(target) {
     scanTarget = target;
+    fastScanMode = (target === 'consolScan');
+    lastFastScanValue = null;
+    lastFastScanTime = 0;
     scanMode = 'barcode';
-    document.getElementById('scanModalTitle').textContent = target === 'palletId' ? 'Scan Pallet ID' : 'Scan Bay Location';
+
+    var titles = {
+      palletId: 'Scan Pallet ID',
+      targetBay: 'Scan Bay Location',
+      consolBay: 'Scan Target Bay',
+      consolScan: 'Scan Pallets'
+    };
+    var subs = {
+      consolScan: 'Keeps scanning automatically — tap Done when finished'
+    };
+    document.getElementById('scanModalTitle').textContent = titles[target] || 'Scan';
+    document.getElementById('scanModalSub').textContent = subs[target] || 'Point camera at barcode or label text';
+
     setScanStatus('Starting camera...', false);
     document.getElementById('scanConfirm').classList.remove('show');
     document.getElementById('scanFooter').style.display = 'none';
@@ -577,6 +996,8 @@
     document.getElementById('modeBtnText').classList.remove('active');
     document.getElementById('scanAimBox').className = 'scan-aim-box barcode-mode';
     document.getElementById('scanHint').textContent = 'Hold steady — barcode reads automatically';
+    document.getElementById('scanFastBar').classList.toggle('show', fastScanMode);
+    updateConsolTallyDisplays();
     document.getElementById('scanModalBg').classList.add('open');
 
     navigator.mediaDevices.getUserMedia({
@@ -599,8 +1020,15 @@
     stopBarcodeLoop();
     stopPreviewLoop();
     document.getElementById('scanModalBg').classList.remove('open');
+    document.getElementById('scanFastBar').classList.remove('show');
+    fastScanMode = false;
     if (scanStream) { scanStream.getTracks().forEach(function (t) { t.stop(); }); scanStream = null; }
     document.getElementById('scanVideo').srcObject = null;
+  }
+
+  function doneScanningFromModal() {
+    closeScan();
+    finishConsolSession();
   }
 
   function retryScan() {
@@ -674,9 +1102,24 @@
     barcodeDetector.detect(bc).then(function (codes) {
       if (!barcodeActive) return;
       if (codes && codes.length > 0 && codes[0].rawValue) {
-        stopBarcodeLoop();
-        playBeep();
-        showScanConfirm(codes[0].rawValue);
+        var val = codes[0].rawValue;
+        if (fastScanMode) {
+          var now = Date.now();
+          if (val === lastFastScanValue && (now - lastFastScanTime) < 2500) {
+            // Same pallet still sitting in frame — don't reprocess it.
+            barcodeLoop = setTimeout(function () { if (barcodeActive) pollBarcode(); }, 150);
+            return;
+          }
+          lastFastScanValue = val;
+          lastFastScanTime = now;
+          playBeep();
+          handleFastScanValue(val);
+          barcodeLoop = setTimeout(function () { if (barcodeActive) pollBarcode(); }, 150);
+        } else {
+          stopBarcodeLoop();
+          playBeep();
+          showScanConfirm(val);
+        }
       } else {
         barcodeLoop = setTimeout(function () { if (barcodeActive) pollBarcode(); }, 100);
       }
@@ -726,14 +1169,48 @@
       resultPromise.then(function (result) {
         if (!barcodeActive) return;
         var text = result && (result.getText ? result.getText() : result.text);
-        if (text) { stopBarcodeLoop(); playBeep(); showScanConfirm(text); }
-        else { setTimeout(function () { if (barcodeActive) pollZXing(); }, 150); }
+        if (text) {
+          if (fastScanMode) {
+            var now = Date.now();
+            if (text === lastFastScanValue && (now - lastFastScanTime) < 2500) {
+              setTimeout(function () { if (barcodeActive) pollZXing(); }, 150);
+              return;
+            }
+            lastFastScanValue = text;
+            lastFastScanTime = now;
+            playBeep();
+            handleFastScanValue(text);
+            setTimeout(function () { if (barcodeActive) pollZXing(); }, 150);
+          } else {
+            stopBarcodeLoop();
+            playBeep();
+            showScanConfirm(text);
+          }
+        } else {
+          setTimeout(function () { if (barcodeActive) pollZXing(); }, 150);
+        }
       }).catch(function () {
         setTimeout(function () { if (barcodeActive) pollZXing(); }, 150);
       });
     } catch (e) {
       setTimeout(function () { if (barcodeActive) pollZXing(); }, 300);
     }
+  }
+
+  /**
+   * Handles one fast-scan (bay-consolidation) hit: shows a brief status
+   * inside the still-open camera modal, processes the pallet, then
+   * reverts the status text so the modal reads "Scanning..." again —
+   * the camera never closes between pallets in this mode.
+   */
+  function handleFastScanValue(val) {
+    setScanStatus('Looking up ' + val + '…', true);
+    processConsolScanValue(val).then(function (result) {
+      setScanStatus(result.message, false);
+      setTimeout(function () {
+        if (fastScanMode && scanMode === 'barcode') setScanStatus('Scanning for barcodes...', false);
+      }, 1400);
+    });
   }
 
   function playBeep() {
@@ -827,11 +1304,25 @@
   function commitScan() {
     var val = document.getElementById('scanConfirmInput').value.trim();
     if (!val) return;
-    closeScan();
-    document.getElementById(scanTarget).value = val;
-    if (scanTarget === 'palletId') {
-      doLookup();
+    document.getElementById('scanConfirm').classList.remove('show');
+
+    if (fastScanMode) {
+      // Consolidation scan loop: process the value, then resume
+      // scanning in the same modal rather than closing it.
+      handleFastScanValue(val);
+      if (scanMode === 'text') {
+        setScanStatus('Ready — tap to capture next pallet', false);
+        document.getElementById('scanCaptureBtn').disabled = false;
+      } else {
+        setScanStatus('Scanning for barcodes...', false);
+        startBarcodeLoop();
+      }
+      return;
     }
+
+    closeScan();
+    document.getElementById(getScanFieldId(scanTarget)).value = val;
+    if (scanTarget === 'palletId') doLookup();
   }
 
   function setScanStatus(msg, spinning) {
